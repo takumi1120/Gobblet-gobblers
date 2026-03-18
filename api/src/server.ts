@@ -6,10 +6,12 @@ import authRouter from "./routes/auth";
 import { logInfo, logError } from "./lib/logger";
 import { config } from "./lib/config";
 import cors from "cors";
+import charactersRouter from "./routes/characters";
+import resultRouter from "./routes/result"
 import { seedDemoUser } from "./lib/seed";
 
 
-
+console.log("server file loaded");
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
@@ -23,12 +25,19 @@ app.use((req, _res, next) => {
     next();
 });
 
+app.get("/", (_req, res) => {
+    res.send("root ok");
+});
+
 app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
 });
 
-app.use("/users", usersRouter);
+console.log("health route registered");
 
+app.use("/users", usersRouter);
+app.use(charactersRouter);
+app.use(resultRouter)
 app.use("/auth", authRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: unknown) => {

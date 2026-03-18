@@ -1,21 +1,54 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { api } from "../lib/api";
 
 const router = useRouter();
 const route = useRoute();
 
 /* -----------------------
-   ルートからプレイヤー名取得
+   受け取った情報
 ----------------------- */
 const player1Name = computed(() => {
-  const name = route.query.p1Name;
-  return typeof name === "string" && name.trim() !== "" ? name : "Player 1";
+  const value = route.query.p1Name;
+  return typeof value === "string" && value.trim() !== "" ? value : "Player 1";
 });
 
 const player2Name = computed(() => {
-  const name = route.query.p2Name;
-  return typeof name === "string" && name.trim() !== "" ? name : "Player 2";
+  const value = route.query.p2Name;
+  return typeof value === "string" && value.trim() !== "" ? value : "Player 2";
+});
+
+const player1Id = computed(() => {
+  const value = route.query.p1Id;
+  const id = Number(value);
+  return Number.isNaN(id) ? null : id;
+});
+
+const player2Id = computed(() => {
+  const value = route.query.p2Id;
+  const id = Number(value);
+  return Number.isNaN(id) ? null : id;
+});
+
+const player1CharacterName = computed(() => {
+  const value = route.query.p1CharacterName;
+  return typeof value === "string" ? value : "";
+});
+
+const player2CharacterName = computed(() => {
+  const value = route.query.p2CharacterName;
+  return typeof value === "string" ? value : "";
+});
+
+const player1CharacterImage = computed(() => {
+  const value = route.query.p1CharacterImage;
+  return typeof value === "string" ? value : "";
+});
+
+const player2CharacterImage = computed(() => {
+  const value = route.query.p2CharacterImage;
+  return typeof value === "string" ? value : "";
 });
 
 /* -----------------------
@@ -216,9 +249,8 @@ const selectedSource = ref<SelectedSource>(null);
 const winningLine = ref<Line | null>(null);
 const message = ref(`${player1Name.value} の手番です`);
 
-const draggedPieceId = ref<string | null>(null);
-const dragOverCell = ref<{ row: number; col: number } | null>(null);
-const dragActive = ref(false);
+const resultSaving = ref(false);
+const resultSaved = ref(false);
 
 function playerDisplayName(player: Player): string {
   return player === 1 ? player1Name.value : player2Name.value;
@@ -318,6 +350,34 @@ function handleCellClick(row: number, col: number) {
   moveSelectedPieceTo(row, col);
 }
 
+async function saveBattleResult(winnerPlayer: Player) {
+  if (resultSaved.value || resultSaving.value) return;
+
+  if (!player1Id.value || !player2Id.value) {
+    console.error("p1Id または p2Id がありません");
+    return;
+  }
+
+  const winnerId = winnerPlayer === 1 ? player1Id.value : player2Id.value;
+  const loserId = winnerPlayer === 1 ? player2Id.value : player1Id.value;
+
+  resultSaving.value = true;
+
+  try {
+    await api.post("/battle/result", {
+      winnerId,
+      loserId,
+    });
+
+    resultSaved.value = true;
+    console.log("対戦結果を保存しました");
+  } catch (e) {
+    console.error("対戦結果の保存に失敗しました", e);
+  } finally {
+    resultSaving.value = false;
+  }
+}
+
 function moveSelectedPieceTo(row: number, col: number) {
   const piece = getSelectedPiece();
   if (!piece || !selectedSource.value) return;
@@ -343,15 +403,13 @@ function moveSelectedPieceTo(row: number, col: number) {
   }
 
   selectedSource.value = null;
-  draggedPieceId.value = null;
-  dragOverCell.value = null;
-  dragActive.value = false;
 
   const result = checkWinner();
   if (result.winner) {
     winner.value = result.winner;
     winningLine.value = result.line;
     message.value = `${playerDisplayName(result.winner)} の勝ち！`;
+    void saveBattleResult(result.winner);
     return;
   }
 
@@ -441,114 +499,9 @@ function resetGame() {
   winner.value = null;
   selectedSource.value = null;
   winningLine.value = null;
-  draggedPieceId.value = null;
-  dragOverCell.value = null;
-  dragActive.value = false;
+  resultSaving.value = false;
+  resultSaved.value = false;
   message.value = `${player1Name.value} の手番です`;
-}
-
-/* -----------------------
-   ドラッグ操作
------------------------ */
-function startDragFromReserve(piece: Piece) {
-  if (winner.value) return;
-  if (piece.owner !== currentPlayer.value) return;
-
-  selectedSource.value = {
-    type: "reserve",
-    pieceId: piece.id,
-  };
-  draggedPieceId.value = piece.id;
-  dragActive.value = true;
-
-  message.value = `${playerDisplayName(currentPlayer.value)}：${SIZE_LABEL[piece.size]} をドラッグ中`;
-}
-
-function startDragFromBoard(row: number, col: number) {
-  if (winner.value) return;
-
-  const piece = topPiece(row, col);
-  if (!piece) return;
-  if (piece.owner !== currentPlayer.value) return;
-
-  selectedSource.value = {
-    type: "board",
-    row,
-    col,
-    pieceId: piece.id,
-  };
-  draggedPieceId.value = piece.id;
-  dragActive.value = true;
-
-  message.value = `${playerDisplayName(currentPlayer.value)}：${SIZE_LABEL[piece.size]} をドラッグ中`;
-}
-
-function onDragStartReserve(piece: Piece, event: DragEvent) {
-  startDragFromReserve(piece);
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", piece.id);
-  }
-}
-
-function onDragStartBoard(row: number, col: number, event: DragEvent) {
-  const piece = topPiece(row, col);
-  if (!piece) return;
-
-  startDragFromBoard(row, col);
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", piece.id);
-  }
-}
-
-function onDragOverCell(row: number, col: number, event: DragEvent) {
-  const piece = selectedPiece.value;
-  if (!piece) return;
-  if (!canPlaceOnCell(piece, row, col)) return;
-
-  event.preventDefault();
-  dragOverCell.value = { row, col };
-
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = "move";
-  }
-}
-
-function onDropCell(row: number, col: number, event: DragEvent) {
-  event.preventDefault();
-
-  const piece = selectedPiece.value;
-  if (!piece) {
-    clearDragState();
-    return;
-  }
-
-  if (!canPlaceOnCell(piece, row, col)) {
-    message.value = "そのマスには置けません";
-    clearDragState();
-    return;
-  }
-
-  moveSelectedPieceTo(row, col);
-}
-
-function onDragEnd() {
-  clearDragState();
-}
-
-function clearDragState() {
-  draggedPieceId.value = null;
-  dragOverCell.value = null;
-  dragActive.value = false;
-
-  if (!winner.value && !selectedSource.value) {
-    message.value = `${playerDisplayName(currentPlayer.value)} の手番です`;
-  }
-}
-
-function isDragOverCell(row: number, col: number): boolean {
-  return dragOverCell.value?.row === row && dragOverCell.value?.col === col;
 }
 
 /* -----------------------
@@ -576,12 +529,27 @@ onBeforeUnmount(() => {
   <div class="battle-page">
     <h1>Gobblet Gobblers</h1>
 
-    <div class="player-row">
-      <div class="name-badge p1-badge">
-        P1 : {{ player1Name }}
+    <div class="player-info-row">
+      <div class="player-info-card p1-card">
+        <img
+          v-if="player1CharacterImage"
+          :src="player1CharacterImage"
+          :alt="player1CharacterName"
+          class="battle-character-image"
+        />
+        <p class="player-name">P1 : {{ player1Name }}</p>
+        <p class="character-name">{{ player1CharacterName }}</p>
       </div>
-      <div class="name-badge p2-badge">
-        P2 : {{ player2Name }}
+
+      <div class="player-info-card p2-card">
+        <img
+          v-if="player2CharacterImage"
+          :src="player2CharacterImage"
+          :alt="player2CharacterName"
+          class="battle-character-image"
+        />
+        <p class="player-name">P2 : {{ player2Name }}</p>
+        <p class="character-name">{{ player2CharacterName }}</p>
       </div>
     </div>
 
@@ -604,9 +572,6 @@ onBeforeUnmount(() => {
             ]"
             :disabled="currentPlayer !== 2 || winner !== null"
             @click="selectReservePiece(piece.id)"
-            @dragstart="onDragStartReserve(piece, $event)"
-            @dragend="onDragEnd"
-            draggable="true"
             :title="reserveText(piece)"
           >
             <span class="piece-face">{{ pieceLabel(piece) }}</span>
@@ -624,11 +589,8 @@ onBeforeUnmount(() => {
               selected: isSelectedBoardPiece(Math.floor(index / 3), index % 3),
               playable: isPlayableCell(Math.floor(index / 3), index % 3),
               winning: isWinningCell(Math.floor(index / 3), index % 3),
-              dragover: isDragOverCell(Math.floor(index / 3), index % 3),
             }"
             @click="handleCellClick(Math.floor(index / 3), index % 3)"
-            @dragover="onDragOverCell(Math.floor(index / 3), index % 3, $event)"
-            @drop="onDropCell(Math.floor(index / 3), index % 3, $event)"
           >
             <div class="cell-inner">
               <template v-if="topPiece(Math.floor(index / 3), index % 3)">
@@ -636,12 +598,8 @@ onBeforeUnmount(() => {
                   class="board-piece"
                   :class="[
                     pieceOwnerClass(topPiece(Math.floor(index / 3), index % 3)!.owner),
-                    pieceSizeClass(topPiece(Math.floor(index / 3), index % 3)!.size),
-                    { dragging: draggedPieceId === topPiece(Math.floor(index / 3), index % 3)!.id && dragActive }
+                    pieceSizeClass(topPiece(Math.floor(index / 3), index % 3)!.size)
                   ]"
-                  draggable="true"
-                  @dragstart="onDragStartBoard(Math.floor(index / 3), index % 3, $event)"
-                  @dragend="onDragEnd"
                 >
                   <span class="piece-face">
                     {{ pieceLabel(topPiece(Math.floor(index / 3), index % 3)!) }}
@@ -671,9 +629,6 @@ onBeforeUnmount(() => {
             ]"
             :disabled="currentPlayer !== 1 || winner !== null"
             @click="selectReservePiece(piece.id)"
-            @dragstart="onDragStartReserve(piece, $event)"
-            @dragend="onDragEnd"
-            draggable="true"
             :title="reserveText(piece)"
           >
             <span class="piece-face">{{ pieceLabel(piece) }}</span>
@@ -690,12 +645,12 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="rules">
-      <p>操作方法</p>
+      <p>ルール</p>
       <ul>
-        <li>クリックでもドラッグでも操作できます</li>
-        <li>手駒をドラッグして盤面に置けます</li>
-        <li>盤面の一番上の自分の駒をドラッグして移動できます</li>
-        <li>大きい駒だけ小さい駒にかぶせられます</li>
+        <li>自分の駒を選んで置く</li>
+        <li>盤面の一番上に見えている自分の駒は移動できる</li>
+        <li>大きい駒は小さい駒にかぶせられる</li>
+        <li>見えている駒で縦・横・斜めを3つ揃えたら勝ち</li>
       </ul>
     </div>
   </div>
@@ -728,27 +683,43 @@ h1 {
     0 0 28px #070606;
 }
 
-.player-row {
+.player-info-row {
   display: flex;
-  gap: 12px;
+  gap: 20px;
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.name-badge {
-  padding: 10px 16px;
-  border-radius: 999px;
+.player-info-card {
+  width: 180px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(30, 18, 10, 0.82);
+  border: 1px solid rgba(255, 204, 112, 0.45);
+  color: #ffdc9a;
+  text-align: center;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(255, 180, 80, 0.12);
+}
+
+.battle-character-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 204, 112, 0.5);
+}
+
+.player-name {
+  margin: 0 0 6px;
   font-weight: bold;
-  border: 1px solid rgba(255, 220, 154, 0.35);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
-.p1-badge {
-  background: linear-gradient(180deg, rgba(26, 90, 40, 0.85), rgba(15, 50, 25, 0.92));
-}
-
-.p2-badge {
-  background: linear-gradient(180deg, rgba(125, 30, 30, 0.85), rgba(60, 12, 12, 0.92));
+.character-name {
+  margin: 0;
+  font-size: 14px;
 }
 
 .turn-banner {
@@ -859,12 +830,6 @@ h1 {
     0 0 20px rgba(255, 222, 130, 0.35);
 }
 
-.cell.dragover {
-  box-shadow:
-    inset 0 0 0 3px rgba(170, 235, 255, 0.9),
-    0 0 22px rgba(120, 220, 255, 0.55);
-}
-
 .cell.winning {
   animation: glowWin 1s infinite alternate;
 }
@@ -911,21 +876,11 @@ h1 {
 }
 
 .reserve-piece {
-  cursor: grab;
+  cursor: pointer;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
     opacity 0.18s ease;
-}
-
-.board-piece {
-  cursor: grab;
-}
-
-.board-piece.dragging,
-.reserve-piece:active,
-.board-piece:active {
-  opacity: 0.55;
 }
 
 .reserve-piece:hover:not(:disabled) {
@@ -1084,6 +1039,15 @@ h1 {
 
   .piece-face {
     font-size: 18px;
+  }
+
+  .player-info-card {
+    width: 150px;
+  }
+
+  .battle-character-image {
+    width: 86px;
+    height: 86px;
   }
 }
 </style>
