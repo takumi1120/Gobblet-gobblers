@@ -78,13 +78,13 @@ const p2Options = computed(() => {
   return items.value.filter((u) => u.id !== selectedP1.value);
 });
 
-const player1 = computed(() => {
-  return items.value.find((u) => u.id === selectedP1.value) ?? null;
-});
+// const player1 = computed(() => {
+//   return items.value.find((u) => u.id === selectedP1.value) ?? null;
+// });
 
-const player2 = computed(() => {
-  return items.value.find((u) => u.id === selectedP2.value) ?? null;
-});
+// const player2 = computed(() => {
+//   return items.value.find((u) => u.id === selectedP2.value) ?? null;
+// });
 
 const player1Character = computed(() => {
   return characters.value.find((c) => c.id === selectedP1CharacterId.value) ?? null;
