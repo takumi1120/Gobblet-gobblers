@@ -37,7 +37,7 @@ console.log("health route registered");
 
 app.use("/users", usersRouter);
 app.use(charactersRouter);
-app.use(resultRouter)
+app.use(resultRouter);
 app.use("/auth", authRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: unknown) => {
