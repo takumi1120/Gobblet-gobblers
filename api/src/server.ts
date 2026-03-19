@@ -56,6 +56,7 @@ async function start() {
         process.exit(1);
     }
 }
+start();
 
 app.listen(port, "0.0.0.0", () => {
     console.log(`API listening on: http://localhost:${port}`);
