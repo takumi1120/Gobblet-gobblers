@@ -7,9 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "build": "tsc",
+<<<<<<< HEAD
     "start": "node src/index.js",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio"
+=======
+    "start": "node dist/server.js"
+>>>>>>> 353c584bca6cd1d7234e7b263b2284b6b9c4f354
   },
   "keywords": [],
   "author": "",
