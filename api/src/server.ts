@@ -7,6 +7,9 @@ import charactersRouter from "./routes/characters";
 import resultRouter from "./routes/result";
 import { logInfo, logError } from "./lib/logger";
 import { config } from "./lib/config";
+import { seedCharacters } from "./lib/InitSeed";
+
+
 console.log("server imported resultRouter");
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -41,6 +44,19 @@ app.use((err: unknown, _req: Request, res: Response, _next: unknown) => {
     });
 });
 
-app.listen(port,  "0.0.0.0",() => {
+async function start() {
+    try {
+        await seedCharacters();
+
+        app.listen(port, () => {
+            console.log(`server started on http://localhost:${port}`);
+        });
+    } catch (error) {
+        console.error(error);
+        process.exit(1);
+    }
+}
+
+app.listen(port, "0.0.0.0", () => {
     console.log(`API listening on: http://localhost:${port}`);
 });
