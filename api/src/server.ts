@@ -7,9 +7,12 @@ import charactersRouter from "./routes/characters";
 import resultRouter from "./routes/result";
 import { logInfo, logError } from "./lib/logger";
 import { config } from "./lib/config";
-
+console.log("server imported resultRouter");
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
+app.get("/stats-direct", (_req, res) => {
+    res.json({ ok: true });
+});
 
 app.use(express.json());
 app.use(cors({ origin: config.corsOrigin }));
@@ -28,8 +31,8 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/users", usersRouter);
-app.use(charactersRouter);
-app.use(resultRouter);
+app.use("/characters", charactersRouter);
+app.use("/results", resultRouter);
 
 app.use((err: unknown, _req: Request, res: Response, _next: unknown) => {
     logError("unexpected error", { err: String(err) });

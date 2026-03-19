@@ -364,7 +364,7 @@ async function saveBattleResult(winnerPlayer: Player) {
   resultSaving.value = true;
 
   try {
-    await api.post("/battle/result", {
+    await api.post("results/battle/result", {
       winnerId,
       loserId,
     });

@@ -20,7 +20,7 @@ export async function findAllCharacters(): Promise<Character[]> {
     });
 }
 
-router.get("/characters", async (_req, res) => {
+router.get("/", async (_req, res) => {
     try {
         const items = await findAllCharacters();
         res.json({ items });

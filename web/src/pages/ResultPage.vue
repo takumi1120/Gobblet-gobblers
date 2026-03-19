@@ -21,7 +21,7 @@ async function fetchResults() {
   error.value = null;
 
   try {
-    const res = await api.get("/results/stats");
+    const res = await api.get("results/stats");
     items.value = res.data.items ?? [];
   } catch (e: any) {
     error.value =
