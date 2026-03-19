@@ -38,6 +38,6 @@ app.use((err: unknown, _req: Request, res: Response, _next: unknown) => {
     });
 });
 
-app.listen(port, () => {
+app.listen(port,  "0.0.0.0",() => {
     console.log(`API listening on: http://localhost:${port}`);
 });
