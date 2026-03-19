@@ -1,17 +1,17 @@
-import { pool } from "./db";
+import { db } from "./db";
 
 export async function seedDemoUser() {
-    const email = "demo@example.com";
+    const name = "Demo";
 
-    // すでにいるなら何もしない
-    const exists = await pool.query(`SELECT 1 FROM users WHERE email = $1`, [email]);
-    if (exists.rowCount && exists.rowCount > 0) return;
+    const exists = await db.user.findFirst({
+        where: { name },
+        select: { id: true },
+    });
+    if (exists) return;
 
-    await pool.query(
-        `INSERT INTO users (name, email, password)
-     VALUES ($1, $2, $3)`,
-        ["Demo", email, "password"]
-    );
+    await db.user.create({
+        data: { name },
+    });
 
     console.log("[seed] demo user inserted");
 }

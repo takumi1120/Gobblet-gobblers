@@ -1,84 +1,68 @@
 import { Router, Request, Response } from "express";
-import { pool } from "../lib/db";
-import { isNonEmptyString, looksLikeEmail } from "../validate";
+import { db } from "../lib/db";
+import { isNonEmptyString } from "../validate";
 import { notFoundError, validationError } from "../lib/errors";
 
 export type User = { id: number; name: string };
 
 const router = Router();
 
-// // GET /users?q=...
 router.get("/", async (req: Request, res: Response) => {
     const q = (req.query.q as string | undefined)?.trim();
 
-    const sql = q
-        ? `SELECT id, name, 
-       FROM users
-       WHERE lower(name) LIKE lower($1)
-       ORDER BY id`
-        : `SELECT id, name
-       FROM users
-       ORDER BY id`;
-
-    const params = q ? [`%${q}%`] : [];
-
-    const r = await pool.query(sql, params);
-
-    const items: User[] = r.rows.map((row) => ({
-        id: row.id,
-        name: row.name,
-
-    }));
+    const items = await db.user.findMany({
+        where: q
+            ? {
+                  name: {
+                      contains: q,
+                      mode: "insensitive",
+                  },
+              }
+            : undefined,
+        orderBy: { id: "asc" },
+        select: {
+            id: true,
+            name: true,
+        },
+    });
 
     res.status(200).json({ items, page: 1, limit: 20, total: items.length });
 });
 
-// // GET /users/:id
 router.get("/:id", async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    const r = await pool.query(
-        `SELECT id, name FROM users WHERE id = $1`,
-        [id]
-    );
-
-    if (r.rowCount === 0) return res.status(404).json(notFoundError("user not found"));
-
-    const row = r.rows[0];
-    res.status(200).json({
-        item: { id: row.id, name: row.name } satisfies User,
+    const item = await db.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            name: true,
+        },
     });
+
+    if (!item) return res.status(404).json(notFoundError("user not found"));
+
+    res.status(200).json({ item: item satisfies User });
 });
 
-// POST /users/usercreate
 router.post("/user", async (req: Request, res: Response) => {
     const { name } = req.body ?? {};
     const details: { field: string; reason: string }[] = [];
 
     if (!isNonEmptyString(name)) details.push({ field: "name", reason: "required" });
-
-
     if (details.length) return res.status(400).json(validationError("invalid request", details));
 
-    try {
-        const r = await pool.query(
-            `INSERT INTO users (name) VALUES ($1)
-       RETURNING id, name`,
-            [name.trim()]
-        );
+    const item = await db.user.create({
+        data: { name: name.trim() },
+        select: {
+            id: true,
+            name: true,
+        },
+    });
 
-        const row = r.rows[0];
-        res.status(201).json({
-            item: { id: row.id, name: row.name } satisfies User,
-        });
-    } catch (e: any) {
-
-
-        throw e;
-    }
+    res.status(201).json({ item: item satisfies User });
 });
 
-// PUT /users/:id
 router.put("/:id", async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     const { name } = req.body ?? {};
@@ -87,36 +71,28 @@ router.put("/:id", async (req: Request, res: Response) => {
     if (!isNonEmptyString(name)) details.push({ field: "name", reason: "required" });
     if (details.length) return res.status(400).json(validationError("invalid request", details));
 
-    try {
-        const r = await pool.query(
-            `UPDATE users
-       SET name = $1
-       WHERE id = $2
-       RETURNING id, name`,
-            [name.trim(), id]
-        );
+    const existing = await db.user.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) return res.status(404).json(notFoundError("user not found"));
 
-        if (r.rowCount === 0) return res.status(404).json(notFoundError("user not found"));
+    const item = await db.user.update({
+        where: { id },
+        data: { name: name.trim() },
+        select: {
+            id: true,
+            name: true,
+        },
+    });
 
-        const row = r.rows[0];
-        res.status(200).json({
-            item: { id: row.id, name: row.name } satisfies User,
-        });
-    } catch (e: any) {
-        if (e?.code === "23505") {
-
-        }
-        throw e;
-    }
+    res.status(200).json({ item: item satisfies User });
 });
 
-// DELETE /users/:id
 router.delete("/:id", async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    const r = await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
-    if (r.rowCount === 0) return res.status(404).json(notFoundError("user not found"));
+    const existing = await db.user.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) return res.status(404).json(notFoundError("user not found"));
 
+    await db.user.delete({ where: { id } });
     res.status(204).send();
 });
 

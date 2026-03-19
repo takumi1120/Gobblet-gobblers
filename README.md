@@ -43,3 +43,4 @@ userid:number
 ・result　CRUD
 
 
+-- public."characters" definition -- Drop table -- DROP TABLE public."characters"; CREATE TABLE public."characters" ( id serial4 NOT NULL, "name" text NOT NULL, image text NULL, CONSTRAINT characters_pkey PRIMARY KEY (id) ); -- public.results definition -- Drop table -- DROP TABLE public.results; CREATE TABLE public.results ( id serial4 NOT NULL, win int4 NOT NULL, lose int4 NOT NULL, user_id int4 NULL, CONSTRAINT results_pkey PRIMARY KEY (id) ); -- public.results foreign keys ALTER TABLE public.results ADD CONSTRAINT results_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id); -- public.users definition -- Drop table -- DROP TABLE public.users; CREATE TABLE public.users ( id serial4 NOT NULL, "name" text NOT NULL, CONSTRAINT users_pkey PRIMARY KEY (id) );

@@ -1,6 +1,5 @@
-import { pool } from "../lib/db";
 import { Router } from "express";
-
+import { db } from "../lib/db";
 
 const router = Router();
 
@@ -11,21 +10,19 @@ export type Character = {
 };
 
 export async function findAllCharacters(): Promise<Character[]> {
-    const result = await pool.query<Character>(
-        `
-    SELECT id, name, image
-    FROM characters
-    ORDER BY id ASC
-    `
-    );
-
-    return result.rows;
-
+    return db.character.findMany({
+        orderBy: { id: "asc" },
+        select: {
+            id: true,
+            name: true,
+            image: true,
+        },
+    });
 }
+
 router.get("/characters", async (_req, res) => {
     try {
         const items = await findAllCharacters();
-
         res.json({ items });
     } catch (error) {
         console.error(error);
