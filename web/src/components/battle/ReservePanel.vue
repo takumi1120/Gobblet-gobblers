@@ -8,11 +8,10 @@ defineProps<{
   currentPlayer: Player;
   owner: Player;
   winner: Player | null;
-  playerImage: (owner: Player) => string;
   pieceSizeClass: (size: PieceSize) => string;
-  pieceOwnerClass: (owner: Player) => string;
   isSelectedReservePiece: (pieceId: string) => boolean;
   reserveText: (piece: Piece) => string;
+  playerImage: (owner: Player) => string;
 }>();
 
 const emit = defineEmits<{
@@ -30,7 +29,6 @@ const emit = defineEmits<{
         :key="piece.id"
         class="reserve-piece"
         :class="[
-          pieceOwnerClass(piece.owner),
           pieceSizeClass(piece.size),
           { selected: currentPlayer === owner && isSelectedReservePiece(piece.id) }
         ]"
@@ -39,11 +37,11 @@ const emit = defineEmits<{
         :title="reserveText(piece)"
       >
         <PieceCone
-  :unique-key="piece.id"
-  :owner="piece.owner"
-  :size="piece.size"
-  :image="playerImage(piece.owner)"
-/>
+          :size="piece.size"
+          :owner="piece.owner"
+          :image="playerImage(piece.owner)"
+          :selected="currentPlayer === owner && isSelectedReservePiece(piece.id)"
+        />
       </button>
     </div>
   </section>
@@ -51,95 +49,64 @@ const emit = defineEmits<{
 
 <style scoped>
 .side-panel {
-  width: 200px;
-  min-height: 360px;
-  padding: 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 204, 112, 0.36);
-  background:
-    linear-gradient(180deg, rgba(42, 25, 12, 0.88), rgba(25, 15, 8, 0.82));
-  box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 228, 176, 0.06),
-    0 0 16px rgba(255, 180, 80, 0.08);
-  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(66, 45, 26, 0.95), rgba(40, 27, 16, 0.95));
+  border: 1px solid rgba(214, 170, 93, 0.45);
+  border-radius: 22px;
+  padding: 18px 16px 20px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
 }
 
 .side-panel h2 {
   margin: 0 0 14px;
   text-align: center;
-  font-size: 22px;
+  color: #ffd48a;
+  font-size: 28px;
+  font-weight: 800;
 }
 
 .reserve-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  justify-items: center;
+  grid-template-columns: repeat(2, minmax(88px, 1fr));
+  gap: 12px;
 }
 
 .reserve-piece {
-  border: none;
-  background: transparent;
-  padding: 0;
-  overflow: visible;
-  width: 88px;
-  height: 132px;
+  border: 1px solid rgba(255, 221, 160, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  min-height: 106px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    opacity 0.18s ease,
-    filter 0.18s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.reserve-piece:hover:not(:disabled) {
-  transform: translateY(-4px) scale(1.04);
+.reserve-piece:hover:enabled {
+  transform: translateY(-2px);
+  border-color: rgba(255, 221, 160, 0.5);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .reserve-piece:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+  cursor: default;
+  opacity: 0.72;
 }
 
 .reserve-piece.selected {
-  transform: translateY(-6px) scale(1.06);
+  border-color: #ffd86b;
+  box-shadow: 0 0 0 2px rgba(255, 216, 107, 0.25);
 }
 
-.piece-s.reserve-piece {
-  width: 72px;
-  height: 112px;
+.reserve-piece.piece-s {
+  min-height: 90px;
 }
 
-.piece-m.reserve-piece {
-  width: 88px;
-  height: 132px;
+.reserve-piece.piece-m {
+  min-height: 104px;
 }
 
-.piece-l.reserve-piece {
-  width: 104px;
-  height: 152px;
-}
-
-@media (max-width: 960px) {
-  .side-panel {
-    width: 100%;
-    max-width: 390px;
-    min-height: auto;
-  }
-
-  .piece-s.reserve-piece {
-    width: 66px;
-    height: 102px;
-  }
-
-  .piece-m.reserve-piece {
-    width: 78px;
-    height: 118px;
-  }
-
-  .piece-l.reserve-piece {
-    width: 92px;
-    height: 136px;
-  }
+.reserve-piece.piece-l {
+  min-height: 118px;
 }
 </style>

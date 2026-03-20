@@ -17,9 +17,6 @@ import type { PieceSize, Player } from "../types/battle.types";
 const router = useRouter();
 const route = useRoute();
 
-/* -----------------------
-   受け取った情報
------------------------ */
 const player1Name = computed(() => {
   const value = route.query.p1Name;
   return typeof value === "string" && value.trim() !== "" ? value : "Player 1";
@@ -62,20 +59,17 @@ const player2CharacterImage = computed(() => {
   return typeof value === "string" ? value : "";
 });
 
-/* -----------------------
-   結果保存
------------------------ */
-const {
-  saveBattleResult,
-  resetResultState,
-} = useBattleResult({
+function playerImage(owner: Player): string {
+  return owner === 1
+    ? player1CharacterImage.value
+    : player2CharacterImage.value;
+}
+
+const { saveBattleResult, resetResultState } = useBattleResult({
   player1Id: player1Id.value,
   player2Id: player2Id.value,
 });
 
-/* -----------------------
-   ゲーム
------------------------ */
 const {
   board,
   reserveP1,
@@ -98,31 +92,14 @@ const {
   onWin: saveBattleResult,
 });
 
-/* -----------------------
-   BGM
------------------------ */
 const { playing, startBgm, stopBgm } = useBattleBgm();
 
-/* -----------------------
-   表示用
------------------------ */
 function pieceSizeClass(size: PieceSize): string {
   if (size === 1) return "piece-s";
   if (size === 2) return "piece-m";
   return "piece-l";
 }
 
-function pieceOwnerClass(owner: Player): string {
-  return owner === 1 ? "piece-p1" : "piece-p2";
-}
-
-function playerImage(owner: Player): string {
-  return owner === 1 ? player1CharacterImage.value : player2CharacterImage.value;
-}
-
-/* -----------------------
-   画面操作
------------------------ */
 function handleReset() {
   resetGame();
   resetResultState();
@@ -170,11 +147,10 @@ onBeforeUnmount(() => {
         :current-player="currentPlayer"
         :owner="2"
         :winner="winner"
-        :player-image="playerImage"
         :piece-size-class="pieceSizeClass"
-        :piece-owner-class="pieceOwnerClass"
         :is-selected-reserve-piece="isSelectedReservePiece"
         :reserve-text="reserveText"
+        :player-image="playerImage"
         @select="selectReservePiece"
       />
 
@@ -182,12 +158,11 @@ onBeforeUnmount(() => {
         :board="board"
         :winner="winner"
         :board-piece-at="boardPieceAt"
-        :player-image="playerImage"
         :piece-size-class="pieceSizeClass"
-        :piece-owner-class="pieceOwnerClass"
         :is-selected-board-piece="isSelectedBoardPiece"
         :is-playable-cell="isPlayableCell"
         :is-winning-cell="isWinningCell"
+        :player-image="playerImage"
         @cell-click="handleCellClick"
       />
 
@@ -197,11 +172,10 @@ onBeforeUnmount(() => {
         :current-player="currentPlayer"
         :owner="1"
         :winner="winner"
-        :player-image="playerImage"
         :piece-size-class="pieceSizeClass"
-        :piece-owner-class="pieceOwnerClass"
         :is-selected-reserve-piece="isSelectedReservePiece"
         :reserve-text="reserveText"
+        :player-image="playerImage"
         @select="selectReservePiece"
       />
     </div>
@@ -221,63 +195,54 @@ onBeforeUnmount(() => {
 <style scoped>
 .battle-page {
   min-height: 100vh;
+  padding: 20px 20px 36px;
   background:
-    radial-gradient(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.62)),
-    url("../assets/tavern-bg.png") center center / cover no-repeat;
-  color: #ffdc9a;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 24px;
-  box-sizing: border-box;
-  font-family: system-ui;
+    radial-gradient(circle at top, rgba(255, 222, 170, 0.18), transparent 34%),
+    linear-gradient(180deg, #f6efe7 0%, #efe3d4 100%);
+  color: #25170d;
 }
 
-h1 {
-  margin: 0;
-  font-size: 42px;
-  letter-spacing: 1px;
-  text-shadow:
-    0 0 4px #fff2b3,
-    0 0 8px #13100b,
-    0 0 16px #ff9f1c,
-    0 0 28px #070606;
+.battle-page > h1 {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: 40px;
+  font-weight: 900;
+  color: #5b371c;
 }
 
 .turn-banner {
-  min-width: 260px;
-  padding: 12px 18px;
-  border-radius: 999px;
+  max-width: 560px;
+  margin: 18px auto 22px;
   text-align: center;
-  font-weight: bold;
-  font-size: 16px;
-  border: 1px solid rgba(255, 220, 154, 0.38);
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.28),
-    inset 0 0 12px rgba(255, 255, 255, 0.04);
+  font-size: 30px;
+  font-weight: 900;
+  padding: 14px 18px;
+  border-radius: 18px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
 }
 
 .banner-p1 {
-  background: linear-gradient(180deg, rgba(26, 90, 40, 0.84), rgba(15, 50, 25, 0.92));
+  background: linear-gradient(180deg, rgba(78, 131, 255, 0.18), rgba(78, 131, 255, 0.08));
+  color: #1f4ca7;
 }
 
 .banner-p2 {
-  background: linear-gradient(180deg, rgba(125, 30, 30, 0.84), rgba(60, 12, 12, 0.92));
+  background: linear-gradient(180deg, rgba(255, 92, 92, 0.18), rgba(255, 92, 92, 0.08));
+  color: #b12626;
 }
 
 .game-layout {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 240px minmax(420px, 560px) 240px;
+  gap: 22px;
+  align-items: start;
   justify-content: center;
-  gap: 24px;
-  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
   .game-layout {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }
 </style>
