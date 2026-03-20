@@ -36,12 +36,15 @@ const emit = defineEmits<{
         @click="emit('select', piece.id)"
         :title="reserveText(piece)"
       >
-        <PieceCone
-          :size="piece.size"
-          :owner="piece.owner"
-          :image="playerImage(piece.owner)"
-          :selected="currentPlayer === owner && isSelectedReservePiece(piece.id)"
-        />
+        <div class="reserve-piece-inner" :class="pieceSizeClass(piece.size)">
+          <PieceCone
+            :size="piece.size"
+            :owner="piece.owner"
+            :image="playerImage(piece.owner)"
+            placement="reserve"
+            :selected="currentPlayer === owner && isSelectedReservePiece(piece.id)"
+          />
+        </div>
       </button>
     </div>
   </section>
@@ -74,7 +77,8 @@ const emit = defineEmits<{
   border: 1px solid rgba(255, 221, 160, 0.22);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.06);
-  min-height: 106px;
+  padding: 0;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,8 +102,29 @@ const emit = defineEmits<{
   box-shadow: 0 0 0 2px rgba(255, 216, 107, 0.25);
 }
 
+.reserve-piece-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+}
+
+/* 持ち駒だけ縮尺を分ける */
+.reserve-piece-inner.piece-s {
+  transform: scale(0.72);
+}
+
+.reserve-piece-inner.piece-m {
+  transform: scale(0.84);
+}
+
+.reserve-piece-inner.piece-l {
+  transform: scale(0.96);
+}
+
+/* マス側の高さも持ち駒専用で調整 */
 .reserve-piece.piece-s {
-  min-height: 90px;
+  min-height: 88px;
 }
 
 .reserve-piece.piece-m {
@@ -107,6 +132,6 @@ const emit = defineEmits<{
 }
 
 .reserve-piece.piece-l {
-  min-height: 118px;
+  min-height: 120px;
 }
 </style>

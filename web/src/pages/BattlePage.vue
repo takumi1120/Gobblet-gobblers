@@ -191,44 +191,92 @@ onBeforeUnmount(() => {
     <BattleRules />
   </div>
 </template>
-
 <style scoped>
 .battle-page {
+  position: relative;
   min-height: 100vh;
-  padding: 20px 20px 36px;
+  padding: 24px 20px 40px;
+  box-sizing: border-box;
+  overflow: hidden;
   background:
-    radial-gradient(circle at top, rgba(255, 222, 170, 0.18), transparent 34%),
-    linear-gradient(180deg, #f6efe7 0%, #efe3d4 100%);
-  color: #25170d;
+    url("../assets/tavern-bg.png") center center / cover no-repeat;
+  color: #ffe3ad;
+}
+
+/* 背景を暗くしてUIを見やすくする */
+.battle-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(255, 199, 117, 0.18), transparent 24%),
+    radial-gradient(circle at 20% 18%, rgba(255, 173, 92, 0.10), transparent 18%),
+    radial-gradient(circle at 80% 18%, rgba(255, 173, 92, 0.10), transparent 18%),
+    linear-gradient(
+      180deg,
+      rgba(18, 10, 6, 0.42) 0%,
+      rgba(20, 11, 7, 0.62) 35%,
+      rgba(18, 10, 6, 0.78) 70%,
+      rgba(12, 7, 5, 0.88) 100%
+    );
+  z-index: 0;
+}
+
+/* 周辺を少し暗くして中央に視線を寄せる */
+.battle-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.22) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.battle-page > * {
+  position: relative;
+  z-index: 1;
 }
 
 .battle-page > h1 {
-  margin: 0 0 18px;
+  margin: 0 0 20px;
   text-align: center;
-  font-size: 40px;
+  font-size: 44px;
   font-weight: 900;
-  color: #5b371c;
+  letter-spacing: 1px;
+  color: #ffd27a;
+  text-shadow:
+    0 0 4px #fff2b3,
+    0 0 10px rgba(19, 16, 11, 0.95),
+    0 0 22px rgba(255, 159, 28, 0.45),
+    0 0 36px rgba(7, 6, 6, 0.95);
 }
 
 .turn-banner {
-  max-width: 560px;
-  margin: 18px auto 22px;
+  max-width: 620px;
+  margin: 18px auto 24px;
   text-align: center;
   font-size: 30px;
   font-weight: 900;
-  padding: 14px 18px;
-  border-radius: 18px;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  padding: 14px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 214, 140, 0.28);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 235, 200, 0.08);
 }
 
 .banner-p1 {
-  background: linear-gradient(180deg, rgba(78, 131, 255, 0.18), rgba(78, 131, 255, 0.08));
-  color: #1f4ca7;
+  background:
+    linear-gradient(180deg, rgba(48, 77, 145, 0.78), rgba(20, 36, 78, 0.72));
+  color: #d8e7ff;
 }
 
 .banner-p2 {
-  background: linear-gradient(180deg, rgba(255, 92, 92, 0.18), rgba(255, 92, 92, 0.08));
-  color: #b12626;
+  background:
+    linear-gradient(180deg, rgba(143, 45, 45, 0.80), rgba(92, 24, 24, 0.72));
+  color: #ffe0e0;
 }
 
 .game-layout {
@@ -237,12 +285,43 @@ onBeforeUnmount(() => {
   gap: 22px;
   align-items: start;
   justify-content: center;
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(52, 31, 16, 0.42), rgba(23, 14, 8, 0.58));
+  border: 1px solid rgba(255, 210, 130, 0.16);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 234, 196, 0.06);
+  backdrop-filter: blur(4px);
 }
 
 @media (max-width: 1100px) {
   .game-layout {
     grid-template-columns: 1fr;
+    max-width: 760px;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .battle-page {
+    padding: 16px 12px 28px;
+  }
+
+  .battle-page > h1 {
+    font-size: 34px;
+  }
+
+  .turn-banner {
+    font-size: 22px;
+    padding: 12px 14px;
+  }
+
+  .game-layout {
+    gap: 16px;
+    border-radius: 20px;
   }
 }
 </style>

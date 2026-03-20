@@ -11,13 +11,20 @@ import redMedium from "../../assets/pieces/pieces-M1.png";
 import redLarge from "../../assets/pieces/pieces-L1.png";
 
 type PieceSize = 1 | 2 | 3;
+type PiecePlacement = "board" | "reserve";
 
-const props = defineProps<{
-  size: PieceSize;
-  owner: Player;
-  image?: string;
-  selected?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    size: PieceSize;
+    owner: Player;
+    image?: string;
+    selected?: boolean;
+    placement?: PiecePlacement;
+  }>(),
+  {
+    placement: "board",
+  }
+);
 
 const baseImage = computed(() => {
   if (props.owner === 1) {
@@ -33,10 +40,11 @@ const baseImage = computed(() => {
 
 const wrapperClass = computed(() => `size-${props.size}`);
 const ownerClass = computed(() => `owner-${props.owner}`);
+const placementClass = computed(() => `placement-${props.placement}`);
 </script>
 
 <template>
-  <div class="piece" :class="[wrapperClass, ownerClass, { selected }]">
+  <div class="piece" :class="[wrapperClass, ownerClass, placementClass, { selected }]">
     <img class="piece-base" :src="baseImage" alt="piece" />
 
     <div v-if="image" class="piece-face">
@@ -60,6 +68,7 @@ const ownerClass = computed(() => `owner-${props.owner}`);
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+  transition: transform 0.15s ease;
 }
 
 .piece-face {
@@ -79,94 +88,105 @@ const ownerClass = computed(() => `owner-${props.owner}`);
   object-fit: cover;
 }
 
-
-/*各コマのサイズ*/
-
-
-
-.owner-1.size-1  {
-  top: 53%;
-  width: 120px;
-  height: 120px;
+/* 駒本体の基準サイズ */
+.size-1 {
+  width: 56px;
+  height: 56px;
 }
 
-.owner-1.size-2  {
-  top: 55%;
-  width: 150px;
-  height: 150px;
+.size-2 {
+  width: 76px;
+  height: 76px;
 }
 
-.owner-1.size-3  {
-  top: 48%;
-  width: 170px;
-  height: 170px;
+.size-3 {
+  width: 96px;
+  height: 96px;
 }
 
-.owner-2.size-1  {
-  top: 53%;
-  width: 100px;
-  height: 100px;
-}
+/* =========================
+   盤面用
+   ========================= */
 
-.owner-2.size-2 {
-  top: 55%;
-  width: 150px;
-  height: 150px;
-}
-
-.owner-2.size-3 {
-  top: 48%;
-  width: 170px;
-  height: 170px;
-}
-
-
-/* -------------------------
-   P1: owner-1
-   top = 上下位置
-   width/height = 顔画像サイズ
-------------------------- */
-
-.owner-1.size-1 .piece-face {
+/* P1 */
+.placement-board.owner-1.size-1 .piece-face {
   top: 56%;
+  width: 14px;
+  height: 14px;
+}
+
+.placement-board.owner-1.size-2 .piece-face {
+  top: 54%;
   width: 20px;
   height: 20px;
 }
 
-.owner-1.size-2 .piece-face {
-  top: 54%;
-  width: 30px;
-  height: 30px;
-}
-
-.owner-1.size-3 .piece-face {
+.placement-board.owner-1.size-3 .piece-face {
   top: 48.5%;
-  width: 36px;
-  height: 36px;
+  width: 25px;
+  height: 25px;
 }
 
-/* -------------------------
-   P2: owner-2
-   top = 上下位置
-   width/height = 顔画像サイズ
-------------------------- */
-
-.owner-2.size-1 .piece-face {
+/* P2 */
+.placement-board.owner-2.size-1 .piece-face {
   top: 53%;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
 }
 
-.owner-2.size-2 .piece-face {
+.placement-board.owner-2.size-2 .piece-face {
   top: 50.5%;
-  width: 27.5px;
-  height: 27.5px;
+  width: 18px;
+  height: 18px;
 }
 
-.owner-2.size-3 .piece-face {
+.placement-board.owner-2.size-3 .piece-face {
   top: 51%;
-  width: 36px;
-  height: 36px;
+  width: 25px;
+  height: 25px;
+}
+
+/* =========================
+   持ち駒用
+   ここだけ別で調整
+   ========================= */
+
+/* P1 */
+.placement-reserve.owner-1.size-1 .piece-face {
+  top: 58%;
+  width: 13px;
+  height: 13px;
+}
+
+.placement-reserve.owner-1.size-2 .piece-face {
+  top: 56%;
+  width: 18px;
+  height: 18px;
+}
+
+.placement-reserve.owner-1.size-3 .piece-face {
+  top: 50%;
+  width: 22px;
+  height: 22px;
+}
+
+/* P2 */
+.placement-reserve.owner-2.size-1 .piece-face {
+  top: 55%;
+  width: 11px;
+  height: 11px;
+}
+
+.placement-reserve.owner-2.size-2 .piece-face {
+  top: 52%;
+  width: 17px;
+  height: 17px;
+}
+
+.placement-reserve.owner-2.size-3 .piece-face {
+  top: 52%;
+  width: 22px;
+  height: 22px;
 }
 
 .selected {

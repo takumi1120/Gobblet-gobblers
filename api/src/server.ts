@@ -9,13 +9,10 @@ import { logInfo, logError } from "./lib/logger";
 import { config } from "./lib/config";
 import { seedCharacters } from "./lib/InitSeed";
 
-
 console.log("server imported resultRouter");
+
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
-app.get("/stats-direct", (_req, res) => {
-    res.json({ ok: true });
-});
 
 app.use(express.json());
 app.use(cors({ origin: config.corsOrigin }));
@@ -33,6 +30,10 @@ app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
 });
 
+app.get("/stats-direct", (_req, res) => {
+    res.json({ ok: true });
+});
+
 app.use("/users", usersRouter);
 app.use("/characters", charactersRouter);
 app.use("/results", resultRouter);
@@ -48,16 +49,13 @@ async function start() {
     try {
         await seedCharacters();
 
-        app.listen(port, () => {
-            console.log(`server started on http://localhost:${port}`);
+        app.listen(port, "0.0.0.0", () => {
+            console.log(`API listening on: http://localhost:${port}`);
         });
     } catch (error) {
         console.error(error);
         process.exit(1);
     }
 }
-start();
 
-app.listen(port, "0.0.0.0", () => {
-    console.log(`API listening on: http://localhost:${port}`);
-});
+start();

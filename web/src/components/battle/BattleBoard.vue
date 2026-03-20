@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import PieceCone from "./PieceCone.vue";
 import type { Cell, Piece, PieceSize, Player } from "../../types/battle.types";
+import boardImage from "../../assets/boards/battle-board.png";
 
-defineProps<{
+const props = defineProps<{
   board: Cell[][];
   winner: Player | null;
   boardPieceAt: (index: number) => Piece | null;
@@ -16,42 +17,82 @@ defineProps<{
 const emit = defineEmits<{
   cellClick: [row: number, col: number];
 }>();
+
+type CellPosition = {
+  row: number;
+  col: number;
+  left: string;
+  top: string;
+};
+
+const cellPositions: CellPosition[] = [
+  { row: 0, col: 0, left: "27.4%", top: "26.5%" },
+  { row: 0, col: 1, left: "50.3%", top: "26.2%" },
+  { row: 0, col: 2, left: "72.5%", top: "26.5%" },
+
+  { row: 1, col: 0, left: "27.4%", top: "45.9%" },
+  { row: 1, col: 1, left: "50.3%", top: "45.9%" },
+  { row: 1, col: 2, left: "72.5%", top: "45.9%" },
+
+  { row: 2, col: 0, left: "27.4%", top: "65.3%" },
+  { row: 2, col: 1, left: "50.3%", top: "65.3%" },
+  { row: 2, col: 2, left: "72.5%", top: "65.3%" },
+];
+
+function boardIndex(row: number, col: number): number {
+  return row * 3 + col;
+}
+
+function pieceAt(row: number, col: number): Piece | null {
+  return props.boardPieceAt(boardIndex(row, col));
+}
+
+function cellStack(row: number, col: number): Cell {
+  return props.board[row][col];
+}
 </script>
 
 <template>
   <section class="board-shell">
     <div class="board-scene">
-      <div class="battle-board">
+      <div class="board-frame">
+        <img class="board-image" :src="boardImage" alt="battle board" />
+
         <button
-          v-for="(cell, index) in board.flat()"
-          :key="index"
+          v-for="cell in cellPositions"
+          :key="`${cell.row}-${cell.col}`"
           class="cell"
+          :style="{ left: cell.left, top: cell.top }"
           :class="{
-            selected: isSelectedBoardPiece(Math.floor(index / 3), index % 3),
-            playable: isPlayableCell(Math.floor(index / 3), index % 3),
-            winning: isWinningCell(Math.floor(index / 3), index % 3),
+            selected: isSelectedBoardPiece(cell.row, cell.col),
+            playable: isPlayableCell(cell.row, cell.col),
+            winning: isWinningCell(cell.row, cell.col),
           }"
-          @click="emit('cellClick', Math.floor(index / 3), index % 3)"
+          @click="emit('cellClick', cell.row, cell.col)"
         >
           <div class="cell-inner">
-            <template v-if="boardPieceAt(index)">
+            <span class="cell-glow"></span>
+            <span class="cell-ring"></span>
+
+            <template v-if="pieceAt(cell.row, cell.col)">
               <div class="board-piece-anchor">
                 <div
                   class="board-piece"
-                  :class="pieceSizeClass(boardPieceAt(index)!.size)"
+                  :class="pieceSizeClass(pieceAt(cell.row, cell.col)!.size)"
                 >
                   <PieceCone
-                    :size="boardPieceAt(index)!.size"
-                    :owner="boardPieceAt(index)!.owner"
-                    :image="playerImage(boardPieceAt(index)!.owner)"
-                    :selected="isSelectedBoardPiece(Math.floor(index / 3), index % 3)"
+                    :size="pieceAt(cell.row, cell.col)!.size"
+                    :owner="pieceAt(cell.row, cell.col)!.owner"
+                    :image="playerImage(pieceAt(cell.row, cell.col)!.owner)"
+                    placement="board"
+                    :selected="isSelectedBoardPiece(cell.row, cell.col)"
                   />
                 </div>
               </div>
             </template>
 
-            <span class="stack-count" v-if="cell.length > 1">
-              {{ cell.length }}
+            <span class="stack-count" v-if="cellStack(cell.row, cell.col).length > 1">
+              {{ cellStack(cell.row, cell.col).length }}
             </span>
           </div>
         </button>
@@ -69,62 +110,46 @@ const emit = defineEmits<{
 
 .board-scene {
   width: 100%;
-  max-width: 560px;
-  padding: 16px;
-  background: linear-gradient(180deg, rgba(72, 47, 28, 0.96), rgba(42, 28, 17, 0.96));
-  border: 1px solid rgba(214, 170, 93, 0.45);
-  border-radius: 28px;
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
+  max-width: 720px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-.battle-board {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
-  gap: 16px;
+.board-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.board-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
 }
 
 .cell {
-  position: relative;
+  position: absolute;
+  width: 21%;
   aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
   border: 0;
-  border-radius: 22px;
-  background:
-    linear-gradient(145deg, rgba(244, 214, 167, 0.95), rgba(193, 145, 83, 0.95));
-  box-shadow:
-    inset 0 8px 18px rgba(255, 255, 255, 0.28),
-    inset 0 -10px 18px rgba(73, 41, 12, 0.2),
-    0 8px 18px rgba(0, 0, 0, 0.18);
-  cursor: pointer;
   padding: 0;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s ease;
 }
 
 .cell:hover {
-  transform: translateY(-2px);
-}
-
-.cell.playable {
-  box-shadow:
-    inset 0 8px 18px rgba(255, 255, 255, 0.28),
-    inset 0 -10px 18px rgba(73, 41, 12, 0.2),
-    0 0 0 3px rgba(103, 214, 255, 0.32),
-    0 8px 18px rgba(0, 0, 0, 0.18);
-}
-
-.cell.selected {
-  box-shadow:
-    inset 0 8px 18px rgba(255, 255, 255, 0.28),
-    inset 0 -10px 18px rgba(73, 41, 12, 0.2),
-    0 0 0 3px rgba(255, 216, 107, 0.4),
-    0 8px 18px rgba(0, 0, 0, 0.18);
-}
-
-.cell.winning {
-  box-shadow:
-    inset 0 8px 18px rgba(255, 255, 255, 0.28),
-    inset 0 -10px 18px rgba(73, 41, 12, 0.2),
-    0 0 0 4px rgba(89, 214, 118, 0.5),
-    0 8px 18px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, calc(-50% - 2px));
 }
 
 .cell-inner {
@@ -133,12 +158,66 @@ const emit = defineEmits<{
   height: 100%;
 }
 
+.cell-glow {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background: radial-gradient(circle, rgba(255, 220, 133, 0.22), transparent 62%);
+}
+
+.cell-ring {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 227, 173, 0.22);
+  opacity: 0;
+  transition:
+    opacity 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.cell.playable .cell-glow {
+  opacity: 1;
+}
+
+.cell.playable .cell-ring {
+  opacity: 1;
+  border-color: rgba(103, 214, 255, 0.42);
+  box-shadow: 0 0 18px rgba(103, 214, 255, 0.2);
+}
+
+.cell.selected .cell-ring {
+  opacity: 1;
+  border-color: rgba(255, 216, 107, 0.88);
+  box-shadow:
+    0 0 0 3px rgba(255, 216, 107, 0.16),
+    0 0 22px rgba(255, 216, 107, 0.32);
+}
+
+.cell.winning .cell-glow {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(89, 214, 118, 0.22), transparent 62%);
+}
+
+.cell.winning .cell-ring {
+  opacity: 1;
+  border-color: rgba(89, 214, 118, 0.9);
+  box-shadow:
+    0 0 0 4px rgba(89, 214, 118, 0.16),
+    0 0 24px rgba(89, 214, 118, 0.34);
+}
 .board-piece-anchor {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* 全サイズまとめて少し動かす */
+  transform: translate(0px, -4px);
 }
 
 .board-piece {
@@ -147,10 +226,23 @@ const emit = defineEmits<{
   justify-content: center;
 }
 
+/* サイズごとに微調整 */
+.board-piece.piece-s {
+  transform: translate(-5px, -5px) scale(o.92);
+}
+
+.board-piece.piece-m {
+  transform: translate(0px, -2px) scale(1);
+}
+
+.board-piece.piece-l {
+  transform: translate(0px, -12px) scale(1.08);
+}
+
 .stack-count {
   position: absolute;
-  right: 10px;
-  bottom: 8px;
+  right: 6px;
+  bottom: 4px;
   min-width: 24px;
   height: 24px;
   padding: 0 6px;
@@ -164,15 +256,15 @@ const emit = defineEmits<{
   justify-content: center;
 }
 
-.board-piece.piece-s {
-  transform: scale(0.92);
-}
 
-.board-piece.piece-m {
-  transform: scale(1);
-}
 
-.board-piece.piece-l {
-  transform: scale(1.08);
+@media (max-width: 640px) {
+  .board-scene {
+    max-width: 100%;
+  }
+
+  .cell {
+    width: 22%;
+  }
 }
 </style>

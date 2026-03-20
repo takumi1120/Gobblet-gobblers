@@ -17,7 +17,7 @@ model User {
 
 model Character {
   id    Int     @id @default(autoincrement())
-  name  String  @map("name")
+  name  String  @unique @map("name")
   image String?
 
   @@map("characters")
