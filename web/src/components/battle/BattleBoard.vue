@@ -103,14 +103,15 @@ function cellStack(row: number, col: number): Cell {
 
 <style scoped>
 .board-shell {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .board-scene {
-  width: 100%;
-  max-width: 720px;
+  width: min(100%, 120vh, 1200px);
+  max-width: 1200px;
   padding: 0;
   background: transparent;
   border: none;
@@ -209,15 +210,14 @@ function cellStack(row: number, col: number): Cell {
     0 0 0 4px rgba(89, 214, 118, 0.16),
     0 0 24px rgba(89, 214, 118, 0.34);
 }
+
 .board-piece-anchor {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  /* 全サイズまとめて少し動かす */
-  transform: translate(0px, -4px);
+  transform: translate(0, -4px);
 }
 
 .board-piece {
@@ -226,17 +226,16 @@ function cellStack(row: number, col: number): Cell {
   justify-content: center;
 }
 
-/* サイズごとに微調整 */
 .board-piece.piece-s {
-  transform: translate(-5px, -5px) scale(o.92);
+  transform: translate(-5px, -5px) scale(0.92);
 }
 
 .board-piece.piece-m {
-  transform: translate(0px, -2px) scale(1);
+  transform: translate(0, -2px) scale(1);
 }
 
 .board-piece.piece-l {
-  transform: translate(0px, -12px) scale(1.08);
+  transform: translate(0, -12px) scale(1.08);
 }
 
 .stack-count {
@@ -256,15 +255,17 @@ function cellStack(row: number, col: number): Cell {
   justify-content: center;
 }
 
-
-
-@media (max-width: 640px) {
+@media (max-width: 1240px) {
   .board-scene {
-    max-width: 100%;
+    width: min(100%, 520px);
+    max-width: 520px;
   }
+}
 
-  .cell {
-    width: 22%;
+@media (max-width: 980px) {
+  .board-scene {
+    width: min(100%, 560px);
+    max-width: 560px;
   }
 }
 </style>
