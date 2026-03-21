@@ -13,11 +13,12 @@ function goOnline() {
 </script>
 
 <template>
-    <div class="mode-title">
-  <div class="mode-title-main">Gobblet Gobblers</div>
-  <div class="mode-title-sub">モードを選択してください</div>
-</div>
   <div class="mode-page">
+    <div class="mode-title">
+      <div class="mode-title-main">Gobblet Gobblers</div>
+      <div class="mode-title-sub">モードを選択してください</div>
+    </div>
+
     <div class="mode-stage">
       <button
         class="board-button board-left"
@@ -26,7 +27,7 @@ function goOnline() {
         aria-label="ローカル対戦"
       >
         <span class="board-label">
-          <span class="board-title">ローカル<br>対戦</span>
+          <span class="board-title">ローカル<br />対戦</span>
           <span class="board-sub">LOCAL</span>
         </span>
       </button>
@@ -47,11 +48,40 @@ function goOnline() {
 </template>
 
 <style scoped>
+:global(html, body, #app) {
+  margin: 0;
+  min-height: 100%;
+}
+
+:global(body) {
+  background: #0d0805;
+}
+
+:global(#app) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-inline: 0;
+}
+
+.mode-page {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background:
+    radial-gradient(circle at top, rgba(87, 58, 29, 0.14), transparent 32%),
+    linear-gradient(180deg, #120b07 0%, #0d0805 100%);
+  overflow: hidden;
+}
+
 .mode-title {
   position: absolute;
   top: 18%;
   left: 50%;
   transform: translateX(-50%);
+  width: min(92vw, 900px);
   text-align: center;
   z-index: 5;
   pointer-events: none;
@@ -76,35 +106,7 @@ function goOnline() {
   font-size: clamp(14px, 1.2vw, 22px);
   font-weight: 700;
   letter-spacing: 0.16em;
-  text-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-:global(html, body, #app) {
-  margin: 0;
-  min-height: 100%;
-}
-
-:global(body) {
-  background: #0d0805;
-}
-
-:global(#app) {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  border-inline: 0;
-}
-
-.mode-page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 8px;
-  background:
-    radial-gradient(circle at top, rgba(87, 58, 29, 0.14), transparent 32%),
-    linear-gradient(180deg, #120b07 0%, #0d0805 100%);
-  overflow: hidden;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .mode-stage {
@@ -114,7 +116,6 @@ function goOnline() {
   background: url("/backgrounds/mode-bg.jpg") center center / contain no-repeat;
 }
 
-/* 透明クリック領域 */
 .board-button {
   position: absolute;
   top: 40.9%;
@@ -127,22 +128,20 @@ function goOnline() {
   cursor: pointer;
   outline: none;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
   transition:
     transform 0.18s ease,
     filter 0.18s ease,
     box-shadow 0.18s ease;
 }
 
-/* 左のボード */
 .board-left {
   left: 22.7%;
   margin-left: 68px;
 }
 
-/* 右のボード */
 .board-right {
   left: 52.6%;
-  
 }
 
 .board-button::before {
@@ -160,7 +159,8 @@ function goOnline() {
   filter: brightness(1.04);
 }
 
-.board-button:hover::before {
+.board-button:hover::before,
+.board-button:active::before {
   opacity: 1;
 }
 
@@ -170,7 +170,6 @@ function goOnline() {
     0 10px 24px rgba(0, 0, 0, 0.36);
 }
 
-/* ボード中央に文字を固定 */
 .board-label {
   position: absolute;
   inset: 0;
@@ -183,12 +182,10 @@ function goOnline() {
   pointer-events: none;
 }
 
-/* 左ボードの文字だけ少し右に寄せて補正 */
 .board-left .board-label {
   transform: translateX(5%);
 }
 
-/* 右ボードはほぼ中央 */
 .board-right .board-label {
   transform: translateX(-2%);
 }
@@ -238,6 +235,7 @@ function goOnline() {
 
   .board-left {
     left: 22.5%;
+    margin-left: 48px;
   }
 
   .board-right {
@@ -262,15 +260,108 @@ function goOnline() {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 820px) {
+  .mode-page {
+    grid-template-rows: auto 1fr;
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .mode-title {
+    top: max(20px, env(safe-area-inset-top));
+    width: min(94vw, 540px);
+  }
+
+  .mode-title-main {
+    font-size: clamp(28px, 8.5vw, 48px);
+    white-space: normal;
+  }
+
+  .mode-title-sub {
+    margin-top: 8px;
+    font-size: clamp(12px, 3.5vw, 16px);
+    letter-spacing: 0.1em;
+  }
+
+  .mode-stage {
+    width: max(100vw, calc((100svh - 148px) * 16 / 9));
+    height: calc(100svh - 120px);
+    aspect-ratio: auto;
+    background-size: cover;
+    background-position: center center;
+  }
+
+  .board-button {
+    top: 45.2%;
+    width: 27%;
+    height: 27.5%;
+    border-radius: 20px;
+  }
+
+  .board-left {
+    left: 20.6%;
+    margin-left: 0;
+  }
+
+  .board-right {
+    left: 52.4%;
+  }
+
+  .board-label {
+    padding: 0 12%;
+  }
+
+  .board-left .board-label,
+  .board-right .board-label {
+    transform: none;
+  }
+
   .board-title {
-    font-size: clamp(14px, 3vw, 24px);
-    line-height: 1.22;
+    font-size: clamp(18px, 4.6vw, 30px);
+    line-height: 1.2;
   }
 
   .board-sub {
-    letter-spacing: 0.16em;
+    margin-top: 8px;
+    font-size: clamp(10px, 2.5vw, 13px);
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (max-width: 520px) {
+  .mode-title {
+    top: max(16px, env(safe-area-inset-top));
+  }
+
+  .mode-stage {
+    width: max(112vw, calc((100svh - 132px) * 16 / 9));
+    height: calc(100svh - 104px);
+  }
+
+  .board-button {
+    top: 48.8%;
+    width: 30.5%;
+    height: 24.8%;
+  }
+
+  .board-left {
+    left: 17.2%;
+    margin-left: 20px;
+  }
+
+  .board-right {
+    left: 52.2%;
+    margin-right: 15px;
+  }
+
+  .board-title {
+    font-size: clamp(16px, 4.8vw, 24px);
+  }
+
+  .board-sub {
     margin-top: 6px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
   }
 }
 </style>

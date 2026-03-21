@@ -308,8 +308,8 @@ async function startBattle() {
     <div class="bottom-buttons">
       <button @click="go('/result')">戦績表示</button>
       <button @click="startBattle">対戦開始</button>
-      <button @click="go('/user')">ユーザー登録</button>
       <button @click="go('/')">モード選択に戻る</button>
+      <button @click="go('/user')">ユーザー登録</button>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -359,6 +359,10 @@ async function startBattle() {
 </template>
 
 <style scoped>
+* {
+  box-sizing: border-box;
+}
+
 .app {
   min-height: 100vh;
   background:
@@ -366,6 +370,7 @@ async function startBattle() {
     url("../assets/tavern-bg.png") center center / cover no-repeat;
   position: relative;
   font-family: system-ui;
+  overflow-x: hidden;
 }
 
 .app::before {
@@ -420,6 +425,7 @@ h1 {
 }
 
 .player-select {
+  width: 100%;
   padding: 12px 14px;
   border: 1px solid rgba(255, 204, 112, 0.6);
   border-radius: 10px;
@@ -494,6 +500,10 @@ button:hover {
   color: #ffdc9a;
 }
 
+.selected-character p {
+  margin: 0;
+}
+
 .character-preview {
   width: 90px;
   height: 115px;
@@ -550,5 +560,168 @@ button:hover {
   border-radius: 12px;
   margin-bottom: 10px;
   margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .app {
+    min-height: 100dvh;
+    padding: 20px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
+  h1 {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    font-size: 30px;
+    line-height: 1.15;
+    margin-top: 6px;
+    margin-bottom: clamp(110px, 18vh, 180px);
+  }
+
+  .player-box {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: min(92vw, 360px);
+    gap: 10px;
+  }
+
+  .p1-box,
+  .p2-box {
+    top: auto;
+    left: auto;
+    right: auto;
+  }
+
+  .select-label {
+    font-size: 16px;
+  }
+
+  .player-select {
+    font-size: 15px;
+    padding: 11px 12px;
+  }
+
+  button {
+    margin: 0;
+    font-size: 15px;
+    padding: 11px 14px;
+  }
+
+  .Cselect {
+    width: 100%;
+  }
+
+  .selected-character {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .character-preview {
+    width: 72px;
+    height: 92px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .bottom-buttons {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: min(92vw, 360px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .bottom-buttons button {
+    width: 100%;
+  }
+
+  .error {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: min(92vw, 360px);
+    text-align: center;
+  }
+
+  .modal {
+    width: min(92vw, 560px);
+    max-height: 82dvh;
+    padding: 16px;
+  }
+
+  .character-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .character-card {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .app {
+    padding: 16px 12px 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: clamp(90px, 15vh, 140px);
+  }
+
+  .player-box,
+  .bottom-buttons,
+  .error {
+    width: 100%;
+  }
+
+  .bottom-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .select-label {
+    font-size: 15px;
+  }
+
+  .player-select,
+  button {
+    font-size: 14px;
+  }
+
+  .selected-character {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .character-preview {
+    width: 64px;
+    height: 82px;
+  }
+
+  .modal {
+    padding: 14px;
+  }
+
+  .character-grid {
+    gap: 10px;
+  }
 }
 </style>
