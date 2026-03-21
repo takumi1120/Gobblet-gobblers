@@ -107,7 +107,7 @@ function handleReset() {
 
 function goHome() {
   stopBgm();
-  router.push("/");
+  router.push("/start");
 }
 
 onMounted(async () => {

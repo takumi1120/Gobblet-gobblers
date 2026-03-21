@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import ModeSelectPage from "../pages/ModeSelectPage.vue";
 import StartPage from "../pages/StartPage.vue";
 import ResultPage from "../pages/ResultPage.vue";
 import UserCreate from "../pages/UserCreate.vue";
@@ -9,6 +10,10 @@ import OnlineBattlePage from "../pages/OnlineBattlePage.vue";
 const routes = [
     {
         path: "/",
+        component: ModeSelectPage,
+    },
+    {
+        path: "/start",
         component: StartPage,
     },
     {
