@@ -3,17 +3,23 @@ import { computed } from "vue";
 import PieceCone from "./PieceCone.vue";
 import type { Piece, PieceSize, Player } from "../../types/battle.types";
 
-const props = defineProps<{
-  title: string;
-  pieces: Piece[];
-  currentPlayer: Player;
-  owner: Player;
-  winner: Player | null;
-  pieceSizeClass: (size: PieceSize) => string;
-  isSelectedReservePiece: (pieceId: string) => boolean;
-  reserveText: (piece: Piece) => string;
-  playerImage: (owner: Player) => string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    pieces: Piece[];
+    currentPlayer: Player;
+    owner: Player;
+    winner: Player | null;
+    pieceSizeClass: (size: PieceSize) => string;
+    isSelectedReservePiece: (pieceId: string) => boolean;
+    reserveText: (piece: Piece) => string;
+    playerImage: (owner: Player) => string;
+    panelEnabled?: boolean;
+  }>(),
+  {
+    panelEnabled: true,
+  }
+);
 
 const emit = defineEmits<{
   select: [pieceId: string];
@@ -61,12 +67,15 @@ function handleSelect(piece: Piece | null) {
           {
             selected:
               slot.piece &&
+              panelEnabled &&
               currentPlayer === owner &&
               isSelectedReservePiece(slot.piece.id),
-            empty: !slot.piece
-          }
+            empty: !slot.piece,
+          },
         ]"
-        :disabled="!slot.piece || currentPlayer !== owner || winner !== null"
+        :disabled="
+          !slot.piece || !panelEnabled || currentPlayer !== owner || winner !== null
+        "
         @click="handleSelect(slot.piece)"
         :title="slot.piece ? reserveText(slot.piece) : ''"
         type="button"
@@ -79,6 +88,7 @@ function handleSelect(piece: Piece | null) {
             :image="playerImage(slot.piece.owner)"
             placement="reserve"
             :selected="
+              panelEnabled &&
               currentPlayer === owner &&
               isSelectedReservePiece(slot.piece.id)
             "

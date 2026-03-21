@@ -8,7 +8,7 @@ import resultRouter from "./routes/result";
 import { logInfo, logError } from "./lib/logger";
 import { config } from "./lib/config";
 import { seedCharacters } from "./lib/InitSeed";
-
+import onlineRouter from "./routes/online";
 console.log("server imported resultRouter");
 
 const app = express();
@@ -37,7 +37,7 @@ app.get("/stats-direct", (_req, res) => {
 app.use("/users", usersRouter);
 app.use("/characters", charactersRouter);
 app.use("/results", resultRouter);
-
+app.use("/online", onlineRouter);
 app.use((err: unknown, _req: Request, res: Response, _next: unknown) => {
     logError("unexpected error", { err: String(err) });
     res.status(500).json({
