@@ -34,7 +34,7 @@ async function fetchResults() {
 }
 
 function goHome() {
-  router.push("/");
+  router.push("/start");
 }
 
 onMounted(() => {
@@ -69,7 +69,7 @@ onMounted(() => {
     </table>
 
     <div class="buttons">
-      <button @click="goHome">タイトルへ戻る</button>
+      <button @click="goHome">ユーザー選択画面へ戻る</button>
     </div>
   </div>
 </template>
