@@ -273,37 +273,42 @@ async function joinRoom() {
   min-height: 100vh;
   padding: 24px;
   background:
-    radial-gradient(circle at top, rgba(118, 74, 34, 0.35), transparent 40%),
-    linear-gradient(180deg, #24160d 0%, #1b1008 100%);
+    radial-gradient(circle at top, rgba(118, 74, 34, 0.16), transparent 42%),
+    linear-gradient(180deg, rgba(36, 22, 13, 0.34) 0%, rgba(27, 16, 8, 0.46) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: url("/backgrounds/mode-bg2.jpg") center center / contain no-repeat;
 }
 
 .lobby-card {
   width: min(1100px, 100%);
-  background: rgba(31, 18, 10, 0.92);
-  border: 1px solid rgba(255, 201, 117, 0.24);
+   background: transparent;
+  border: 1px solid rgba(255, 201, 117, 0.26);
   border-radius: 24px;
   padding: 28px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 h1 {
   margin: 0;
   text-align: center;
   color: #ffd48a;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 .sub {
   margin: 8px 0 0;
   text-align: center;
   color: #f3ddb3;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
 .error {
   margin-top: 16px;
-  color: #ff9f9f;
+  color: #ffb2b2;
   text-align: center;
   font-weight: 700;
 }
@@ -322,41 +327,73 @@ h1 {
 }
 
 .panel {
-  background: linear-gradient(180deg, rgba(66, 45, 26, 0.95), rgba(40, 27, 16, 0.95));
-  border: 1px solid rgba(214, 170, 93, 0.45);
+  background: linear-gradient(
+    180deg,
+    rgba(66, 45, 26, 0.42),
+    rgba(40, 27, 16, 0.34)
+  );
+  border: 1px solid rgba(214, 170, 93, 0.42);
   border-radius: 20px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .panel h2 {
   margin: 0 0 6px;
   color: #ffd48a;
   text-align: center;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 
 label {
   color: #f8ddb0;
   font-weight: 700;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 
 select,
 .room-input {
   height: 44px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 221, 160, 0.25);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 221, 160, 0.28);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff0d2;
   padding: 0 12px;
   font-size: 15px;
+  outline: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+select:focus,
+.room-input:focus {
+  border-color: rgba(255, 212, 138, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 212, 138, 0.12);
+}
+
+select option {
+  background: #3a2414;
+  color: #fff0d2;
+}
+
+.room-input::placeholder {
+  color: rgba(255, 230, 188, 0.6);
 }
 
 .character-preview-box {
   margin-top: 8px;
+  padding: 12px;
   text-align: center;
   color: #ffdfaa;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 221, 160, 0.16);
+  border-radius: 14px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .character-preview {
@@ -364,26 +401,45 @@ select,
   height: 110px;
   object-fit: cover;
   border-radius: 14px;
-  border: 1px solid rgba(255, 221, 160, 0.25);
+  border: 1px solid rgba(255, 221, 160, 0.28);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
 
 .action-button,
 .back-button {
   margin-top: 12px;
   height: 46px;
-  border: 1px solid rgba(255, 204, 112, 0.5);
+  border: 1px solid rgba(255, 204, 112, 0.42);
   border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(58, 34, 14, 0.88), rgba(34, 20, 9, 0.82));
+  background: linear-gradient(
+    180deg,
+    rgba(58, 34, 14, 0.62),
+    rgba(34, 20, 9, 0.48)
+  );
   color: #ffdc9a;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.action-button:hover,
+.back-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 212, 138, 0.72);
 }
 
 .action-button:disabled {
   opacity: 0.7;
   cursor: default;
+  transform: none;
+  box-shadow: none;
 }
 
 .footer-actions {

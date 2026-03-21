@@ -13,6 +13,10 @@ function goOnline() {
 </script>
 
 <template>
+    <div class="mode-title">
+  <div class="mode-title-main">Gobblet Gobblers</div>
+  <div class="mode-title-sub">モードを選択してください</div>
+</div>
   <div class="mode-page">
     <div class="mode-stage">
       <button
@@ -43,6 +47,39 @@ function goOnline() {
 </template>
 
 <style scoped>
+.mode-title {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.mode-title-main {
+  color: #f8dfb0;
+  font-size: clamp(34px, 4vw, 64px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 2px 0 rgba(70, 35, 10, 0.85),
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(255, 196, 96, 0.18);
+  white-space: nowrap;
+}
+
+.mode-title-sub {
+  margin-top: 10px;
+  color: rgba(255, 232, 185, 0.92);
+  font-size: clamp(14px, 1.2vw, 22px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 :global(html, body, #app) {
   margin: 0;
   min-height: 100%;

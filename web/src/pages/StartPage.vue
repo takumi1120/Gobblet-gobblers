@@ -308,8 +308,8 @@ async function startBattle() {
     <div class="bottom-buttons">
       <button @click="go('/result')">戦績表示</button>
       <button @click="startBattle">対戦開始</button>
-      <button @click="go('/')">モード選択に戻る</button>
       <button @click="go('/user')">ユーザー登録</button>
+      <button @click="go('/')">モード選択に戻る</button>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
