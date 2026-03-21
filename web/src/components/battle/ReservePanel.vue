@@ -188,4 +188,29 @@ function handleSelect(piece: Piece | null) {
 .reserve-piece.piece-l {
   min-height: var(--battle-reserve-height-l, 120px);
 }
+
+@media (max-width: 768px) {
+  .side-panel {
+    border-radius: 18px;
+  }
+
+  .side-panel h2 {
+    margin-bottom: 8px;
+  }
+
+  .reserve-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .reserve-piece {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .reserve-grid {
+    gap: 6px;
+  }
+}
 </style>

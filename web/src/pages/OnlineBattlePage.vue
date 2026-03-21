@@ -543,20 +543,123 @@ h1 {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .battle-page {
+    --battle-page-side-padding: 10px;
+    --battle-page-bottom-padding: 14px;
+    --battle-section-gap: 10px;
+
+    --battle-header-gap: 10px;
+    --battle-header-card-width: min(44vw, 150px);
+    --battle-header-image-size: 52px;
+    --battle-player-name-size: 11px;
+    --battle-character-name-size: 9px;
+
+    --battle-banner-max-width: 100%;
+    --battle-banner-font-size: 14px;
+    --battle-banner-padding-y: 8px;
+    --battle-banner-padding-x: 10px;
+    --battle-banner-lift: 0px;
+
+    --battle-side-panel-width: 100%;
+    --battle-layout-gap: 12px;
+    --battle-side-panel-padding-top: 10px;
+    --battle-side-panel-padding-x: 10px;
+    --battle-side-panel-padding-bottom: 10px;
+    --battle-side-heading-size: 13px;
+    --battle-side-piece-column-min: 0px;
+
+    --battle-reserve-gap: 8px;
+    --battle-reserve-height-s: 54px;
+    --battle-reserve-height-m: 64px;
+    --battle-reserve-height-l: 74px;
+    --battle-reserve-scale-s: 0.5;
+    --battle-reserve-scale-m: 0.58;
+    --battle-reserve-scale-l: 0.68;
+
+    --battle-board-size: min(calc(100vw - 20px), 420px);
+    --battle-board-lift: 0px;
+
+    --battle-piece-size-s: 36px;
+    --battle-piece-size-m: 50px;
+    --battle-piece-size-l: 64px;
+
+    --battle-stack-size: 20px;
+    --battle-stack-font-size: 11px;
+
+    --battle-button-min-width: 100%;
+    --battle-button-font-size: 14px;
+
+    overflow-x: hidden;
+  }
+
   .page-inner {
+    min-height: auto;
     padding: 10px 10px 16px;
+    grid-template-rows: auto auto auto auto auto;
     gap: 10px;
   }
 
+  .room-floating {
+    position: static;
+    justify-self: end;
+    margin: 0 0 4px auto;
+  }
+
+  .battle-header :deep(.player-info-row) {
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .turn-banner {
+    width: 100%;
+    max-width: 100%;
+    transform: none;
+    margin-top: 0;
+  }
+
+  .game-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .battle-board {
+    padding-bottom: 0;
+  }
+
+  .battle-board :deep(.board-scene) {
+    transform: none;
+  }
+
+  .bottom-layout {
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .battle-controls {
+    width: 100%;
+  }
+
+  .battle-controls :deep(.buttons) {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .battle-controls :deep(.buttons button) {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
   h1 {
     font-size: 24px;
   }
 
-  .turn-banner {
-    max-width: 300px;
-    font-size: 17px;
-    padding: 9px 12px;
+  .battle-header :deep(.player-info-card) {
+    width: min(44vw, 140px);
   }
 
   .room-floating {
@@ -576,4 +679,5 @@ h1 {
     height: 100%;
   }
 }
+
 </style>

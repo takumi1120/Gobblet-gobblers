@@ -262,15 +262,28 @@ function cellStack(row: number, col: number): Cell {
 
 @media (max-width: 1240px) {
   .board-scene {
-    width: min(100%, 520px);
-    max-width: 520px;
+    width: min(100%, var(--battle-board-size, 520px));
+    max-width: var(--battle-board-size, 520px);
   }
 }
 
 @media (max-width: 980px) {
   .board-scene {
-    width: min(100%, 560px);
-    max-width: 560px;
+    width: min(100%, var(--battle-board-size, 420px));
+    max-width: var(--battle-board-size, 420px);
+  }
+
+  .stack-count {
+    right: 2px;
+    bottom: 2px;
+    padding: 0 4px;
   }
 }
+
+@media (max-width: 420px) {
+  .cell {
+    width: 22.5%;
+  }
+}
+
 </style>
