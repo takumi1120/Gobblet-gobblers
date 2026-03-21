@@ -23,20 +23,23 @@ const emit = defineEmits<{
 <style scoped>
 .buttons {
   display: flex;
-  gap: 12px;
+  gap: var(--battle-button-gap, 12px);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .buttons button {
-  padding: 12px 20px;
+  min-width: var(--battle-button-min-width, 132px);
+  padding: var(--battle-button-padding-y, 12px) var(--battle-button-padding-x, 20px);
   border: 1px solid rgba(255, 204, 112, 0.5);
   border-radius: 12px;
   background:
     linear-gradient(180deg, rgba(58, 34, 14, 0.88), rgba(34, 20, 9, 0.82));
   color: #ffdc9a;
-  font-size: 16px;
+  font-size: var(--battle-button-font-size, 16px);
+  line-height: 1.2;
   font-weight: bold;
+  white-space: nowrap;
   cursor: pointer;
   box-shadow:
     0 6px 14px rgba(0, 0, 0, 0.34),

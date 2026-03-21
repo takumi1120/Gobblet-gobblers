@@ -38,14 +38,18 @@ defineProps<{
 <style scoped>
 .player-info-row {
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: var(--battle-header-gap, 20px);
+  padding-inline: var(--battle-header-side-padding, 0);
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .player-info-card {
-  width: 180px;
-  padding: 12px;
+  width: var(--battle-header-card-width, 180px);
+  padding: var(--battle-header-card-padding-y, 12px) var(--battle-header-card-padding-x, 12px);
   border-radius: 16px;
   background:
     linear-gradient(180deg, rgba(40, 24, 12, 0.88), rgba(24, 14, 8, 0.82));
@@ -59,8 +63,8 @@ defineProps<{
 }
 
 .battle-character-image {
-  width: 100px;
-  height: 100px;
+  width: var(--battle-header-image-size, 100px);
+  height: var(--battle-header-image-size, 100px);
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 8px;
@@ -70,13 +74,24 @@ defineProps<{
 
 .player-name {
   margin: 0 0 6px;
+  font-size: var(--battle-player-name-size, 16px);
+  line-height: 1.2;
   font-weight: bold;
 }
 
 .character-name {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--battle-character-name-size, 14px);
+  line-height: 1.2;
   opacity: 0.92;
+}
+
+@media (max-width: 1240px) {
+  .player-info-row {
+    padding-inline: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 960px) {

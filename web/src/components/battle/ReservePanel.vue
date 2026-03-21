@@ -55,22 +55,25 @@ const emit = defineEmits<{
   background: linear-gradient(180deg, rgba(66, 45, 26, 0.95), rgba(40, 27, 16, 0.95));
   border: 1px solid rgba(214, 170, 93, 0.45);
   border-radius: 22px;
-  padding: 18px 16px 20px;
+  padding:
+    var(--battle-side-panel-padding-top, 18px)
+    var(--battle-side-panel-padding-x, 16px)
+    var(--battle-side-panel-padding-bottom, 20px);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
 }
 
 .side-panel h2 {
-  margin: 0 0 14px;
+  margin: 0 0 clamp(8px, 1vh, 14px);
   text-align: center;
   color: #ffd48a;
-  font-size: 28px;
+  font-size: var(--battle-side-heading-size, 28px);
   font-weight: 800;
 }
 
 .reserve-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(88px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(var(--battle-side-piece-column-min, 88px), 1fr));
+  gap: var(--battle-reserve-gap, 12px);
 }
 
 .reserve-piece {
@@ -111,27 +114,27 @@ const emit = defineEmits<{
 
 /* 持ち駒だけ縮尺を分ける */
 .reserve-piece-inner.piece-s {
-  transform: scale(0.72);
+  transform: scale(var(--battle-reserve-scale-s, 0.72));
 }
 
 .reserve-piece-inner.piece-m {
-  transform: scale(0.84);
+  transform: scale(var(--battle-reserve-scale-m, 0.84));
 }
 
 .reserve-piece-inner.piece-l {
-  transform: scale(0.96);
+  transform: scale(var(--battle-reserve-scale-l, 0.96));
 }
 
 /* マス側の高さも持ち駒専用で調整 */
 .reserve-piece.piece-s {
-  min-height: 88px;
+  min-height: var(--battle-reserve-height-s, 88px);
 }
 
 .reserve-piece.piece-m {
-  min-height: 104px;
+  min-height: var(--battle-reserve-height-m, 104px);
 }
 
 .reserve-piece.piece-l {
-  min-height: 120px;
+  min-height: var(--battle-reserve-height-l, 120px);
 }
 </style>

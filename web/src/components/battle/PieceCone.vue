@@ -90,18 +90,21 @@ const placementClass = computed(() => `placement-${props.placement}`);
 
 /* 駒本体の基準サイズ */
 .size-1 {
-  width: 56px;
-  height: 56px;
+  --piece-diameter: var(--battle-piece-size-s, 56px);
+  width: var(--piece-diameter);
+  height: var(--piece-diameter);
 }
 
 .size-2 {
-  width: 76px;
-  height: 76px;
+  --piece-diameter: var(--battle-piece-size-m, 76px);
+  width: var(--piece-diameter);
+  height: var(--piece-diameter);
 }
 
 .size-3 {
-  width: 96px;
-  height: 96px;
+  --piece-diameter: var(--battle-piece-size-l, 96px);
+  width: var(--piece-diameter);
+  height: var(--piece-diameter);
 }
 
 /* =========================
@@ -111,39 +114,39 @@ const placementClass = computed(() => `placement-${props.placement}`);
 /* P1 */
 .placement-board.owner-1.size-1 .piece-face {
   top: 56%;
-  width: 14px;
-  height: 14px;
+  width: calc(var(--piece-diameter) * 0.25);
+  height: calc(var(--piece-diameter) * 0.25);
 }
 
 .placement-board.owner-1.size-2 .piece-face {
   top: 54%;
-  width: 20px;
-  height: 20px;
+  width: calc(var(--piece-diameter) * 0.263);
+  height: calc(var(--piece-diameter) * 0.263);
 }
 
 .placement-board.owner-1.size-3 .piece-face {
   top: 48.5%;
-  width: 25px;
-  height: 25px;
+  width: calc(var(--piece-diameter) * 0.26);
+  height: calc(var(--piece-diameter) * 0.26);
 }
 
 /* P2 */
 .placement-board.owner-2.size-1 .piece-face {
   top: 53%;
-  width: 12px;
-  height: 12px;
+  width: calc(var(--piece-diameter) * 0.214);
+  height: calc(var(--piece-diameter) * 0.214);
 }
 
 .placement-board.owner-2.size-2 .piece-face {
   top: 50.5%;
-  width: 18px;
-  height: 18px;
+  width: calc(var(--piece-diameter) * 0.237);
+  height: calc(var(--piece-diameter) * 0.237);
 }
 
 .placement-board.owner-2.size-3 .piece-face {
   top: 51%;
-  width: 25px;
-  height: 25px;
+  width: calc(var(--piece-diameter) * 0.26);
+  height: calc(var(--piece-diameter) * 0.26);
 }
 
 /* =========================
@@ -154,39 +157,39 @@ const placementClass = computed(() => `placement-${props.placement}`);
 /* P1 */
 .placement-reserve.owner-1.size-1 .piece-face {
   top: 58%;
-  width: 13px;
-  height: 13px;
+  width: calc(var(--piece-diameter) * 0.232);
+  height: calc(var(--piece-diameter) * 0.232);
 }
 
 .placement-reserve.owner-1.size-2 .piece-face {
   top: 56%;
-  width: 18px;
-  height: 18px;
+  width: calc(var(--piece-diameter) * 0.237);
+  height: calc(var(--piece-diameter) * 0.237);
 }
 
 .placement-reserve.owner-1.size-3 .piece-face {
   top: 50%;
-  width: 22px;
-  height: 22px;
+  width: calc(var(--piece-diameter) * 0.229);
+  height: calc(var(--piece-diameter) * 0.229);
 }
 
 /* P2 */
 .placement-reserve.owner-2.size-1 .piece-face {
   top: 55%;
-  width: 11px;
-  height: 11px;
+  width: calc(var(--piece-diameter) * 0.196);
+  height: calc(var(--piece-diameter) * 0.196);
 }
 
 .placement-reserve.owner-2.size-2 .piece-face {
   top: 52%;
-  width: 17px;
-  height: 17px;
+  width: calc(var(--piece-diameter) * 0.224);
+  height: calc(var(--piece-diameter) * 0.224);
 }
 
 .placement-reserve.owner-2.size-3 .piece-face {
   top: 52%;
-  width: 22px;
-  height: 22px;
+  width: calc(var(--piece-diameter) * 0.229);
+  height: calc(var(--piece-diameter) * 0.229);
 }
 
 .selected {

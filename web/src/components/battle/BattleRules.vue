@@ -18,7 +18,7 @@
     linear-gradient(180deg, rgba(36, 22, 11, 0.86), rgba(24, 14, 8, 0.82));
   border: 1px solid rgba(255, 204, 112, 0.34);
   border-radius: 18px;
-  padding: 16px 20px;
+  padding: var(--battle-rules-padding-y, 16px) var(--battle-rules-padding-x, 20px);
   box-sizing: border-box;
   box-shadow:
     0 10px 22px rgba(0, 0, 0, 0.28),
@@ -26,17 +26,23 @@
 }
 
 .rules p {
-  margin: 0 0 10px;
+  margin: 0 0 clamp(6px, 0.8vh, 10px);
   font-weight: bold;
-  font-size: 18px;
+  font-size: var(--battle-rules-title-size, 18px);
+  line-height: 1.2;
 }
 
 .rules ul {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 18px;
+  display: grid;
+  grid-template-columns: repeat(var(--battle-rules-columns, 1), minmax(0, 1fr));
+  gap: 4px var(--battle-rules-column-gap, 16px);
 }
 
 .rules li {
-  margin-bottom: 6px;
+  margin-bottom: 0;
+  font-size: var(--battle-rules-item-size, 14px);
+  line-height: 1.35;
 }
 </style>

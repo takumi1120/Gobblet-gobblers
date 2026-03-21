@@ -110,8 +110,8 @@ function cellStack(row: number, col: number): Cell {
 }
 
 .board-scene {
-  width: min(100%, 120vh, 1200px);
-  max-width: 1200px;
+  width: min(100%, var(--battle-board-size, 1200px));
+  max-width: var(--battle-board-size, 1200px);
   padding: 0;
   background: transparent;
   border: none;
@@ -217,7 +217,7 @@ function cellStack(row: number, col: number): Cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translate(0, -4px);
+  transform: translate(0, calc(var(--battle-piece-size-s, 56px) * -0.07));
 }
 
 .board-piece {
@@ -227,28 +227,33 @@ function cellStack(row: number, col: number): Cell {
 }
 
 .board-piece.piece-s {
-  transform: translate(-5px, -5px) scale(0.92);
+  transform:
+    translate(
+      calc(var(--battle-piece-size-s, 56px) * -0.09),
+      calc(var(--battle-piece-size-s, 56px) * -0.09)
+    )
+    scale(0.92);
 }
 
 .board-piece.piece-m {
-  transform: translate(0, -2px) scale(1);
+  transform: translate(0, calc(var(--battle-piece-size-m, 76px) * -0.03)) scale(1);
 }
 
 .board-piece.piece-l {
-  transform: translate(0, -12px) scale(1.08);
+  transform: translate(0, calc(var(--battle-piece-size-l, 96px) * -0.125)) scale(1.08);
 }
 
 .stack-count {
   position: absolute;
   right: 6px;
   bottom: 4px;
-  min-width: 24px;
-  height: 24px;
+  min-width: var(--battle-stack-size, 24px);
+  height: var(--battle-stack-size, 24px);
   padding: 0 6px;
   border-radius: 999px;
   background: rgba(56, 34, 18, 0.82);
   color: #ffe2a8;
-  font-size: 13px;
+  font-size: var(--battle-stack-font-size, 13px);
   font-weight: 800;
   display: inline-flex;
   align-items: center;
