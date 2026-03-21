@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { api } from "../lib/api";
 
 const router = useRouter();
 
+const STORAGE_KEY = "gobblet-start-page-selection";
+
 async function go(route: string) {
   router.push(route);
+}
+
+function toNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+
+  const num = Number(value);
+  return Number.isNaN(num) ? null : num;
 }
 
 type User = {
@@ -20,11 +29,18 @@ type Character = {
   image: string;
 };
 
+type StartPageSelectionState = {
+  selectedP1: number | null;
+  selectedP2: number | null;
+  selectedP1CharacterId: number | null;
+  selectedP2CharacterId: number | null;
+};
+
 const items = ref<User[]>([]);
 const characters = ref<Character[]>([]);
 
-const selectedP1 = ref<number | "">("");
-const selectedP2 = ref<number | "">("");
+const selectedP1 = ref<number | null>(null);
+const selectedP2 = ref<number | null>(null);
 const selectedP1CharacterId = ref<number | null>(null);
 const selectedP2CharacterId = ref<number | null>(null);
 
@@ -33,6 +49,85 @@ const error = ref<string | null>(null);
 
 const showP1CharacterModal = ref(false);
 const showP2CharacterModal = ref(false);
+
+function restoreSelectionState() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    const saved = JSON.parse(raw) as Partial<StartPageSelectionState>;
+
+    selectedP1.value = toNumberOrNull(saved.selectedP1);
+    selectedP2.value = toNumberOrNull(saved.selectedP2);
+    selectedP1CharacterId.value = toNumberOrNull(saved.selectedP1CharacterId);
+    selectedP2CharacterId.value = toNumberOrNull(saved.selectedP2CharacterId);
+  } catch (e) {
+    console.error("開始画面の選択状態の復元に失敗しました", e);
+  }
+}
+
+function saveSelectionState() {
+  const payload: StartPageSelectionState = {
+    selectedP1: selectedP1.value,
+    selectedP2: selectedP2.value,
+    selectedP1CharacterId: selectedP1CharacterId.value,
+    selectedP2CharacterId: selectedP2CharacterId.value,
+  };
+
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+}
+
+function validateUserSelections() {
+  const userIds = new Set(items.value.map((u) => Number(u.id)));
+
+  if (selectedP1.value !== null && !userIds.has(selectedP1.value)) {
+    selectedP1.value = null;
+  }
+
+  if (selectedP2.value !== null && !userIds.has(selectedP2.value)) {
+    selectedP2.value = null;
+  }
+
+  if (
+    selectedP1.value !== null &&
+    selectedP2.value !== null &&
+    selectedP1.value === selectedP2.value
+  ) {
+    selectedP2.value = null;
+  }
+}
+
+function validateCharacterSelections() {
+  const characterIds = new Set(characters.value.map((c) => Number(c.id)));
+
+  if (
+    selectedP1CharacterId.value !== null &&
+    !characterIds.has(selectedP1CharacterId.value)
+  ) {
+    selectedP1CharacterId.value = null;
+  }
+
+  if (
+    selectedP2CharacterId.value !== null &&
+    !characterIds.has(selectedP2CharacterId.value)
+  ) {
+    selectedP2CharacterId.value = null;
+  }
+}
+
+restoreSelectionState();
+
+watch(
+  [
+    selectedP1,
+    selectedP2,
+    selectedP1CharacterId,
+    selectedP2CharacterId,
+  ],
+  () => {
+    saveSelectionState();
+  }
+);
 
 onMounted(() => {
   fetchUsers();
@@ -45,7 +140,11 @@ async function fetchUsers() {
 
   try {
     const res = await api.get("/users");
-    items.value = res.data.items ?? [];
+    items.value = (res.data.items ?? []).map((u: any) => ({
+      ...u,
+      id: Number(u.id),
+    }));
+    validateUserSelections();
   } catch (e: any) {
     error.value =
       e?.response?.data?.error?.message ??
@@ -60,7 +159,11 @@ async function fetchUsers() {
 async function fetchCharacters() {
   try {
     const res = await api.get("/characters");
-    characters.value = res.data.items ?? [];
+    characters.value = (res.data.items ?? []).map((ch: any) => ({
+      ...ch,
+      id: Number(ch.id),
+    }));
+    validateCharacterSelections();
   } catch (e: any) {
     error.value =
       e?.response?.data?.error?.message ??
@@ -78,29 +181,27 @@ const p2Options = computed(() => {
   return items.value.filter((u) => u.id !== selectedP1.value);
 });
 
-// const player1 = computed(() => {
-//   return items.value.find((u) => u.id === selectedP1.value) ?? null;
-// });
-
-// const player2 = computed(() => {
-//   return items.value.find((u) => u.id === selectedP2.value) ?? null;
-// });
-
 const player1Character = computed(() => {
-  return characters.value.find((c) => c.id === selectedP1CharacterId.value) ?? null;
+  return (
+    characters.value.find((c) => Number(c.id) === selectedP1CharacterId.value) ??
+    null
+  );
 });
 
 const player2Character = computed(() => {
-  return characters.value.find((c) => c.id === selectedP2CharacterId.value) ?? null;
+  return (
+    characters.value.find((c) => Number(c.id) === selectedP2CharacterId.value) ??
+    null
+  );
 });
 
 function selectCharacterForP1(character: Character) {
-  selectedP1CharacterId.value = character.id;
+  selectedP1CharacterId.value = Number(character.id);
   showP1CharacterModal.value = false;
 }
 
 function selectCharacterForP2(character: Character) {
-  selectedP2CharacterId.value = character.id;
+  selectedP2CharacterId.value = Number(character.id);
   showP2CharacterModal.value = false;
 }
 
@@ -115,7 +216,10 @@ async function startBattle() {
     return;
   }
 
-  if (selectedP1CharacterId.value === null || selectedP2CharacterId.value === null) {
+  if (
+    selectedP1CharacterId.value === null ||
+    selectedP2CharacterId.value === null
+  ) {
     alert("キャラクターを選択してください");
     return;
   }
@@ -124,10 +228,10 @@ async function startBattle() {
   const p2 = items.value.find((user) => user.id === selectedP2.value);
 
   const p1Character = characters.value.find(
-    (c) => c.id === selectedP1CharacterId.value
+    (c) => Number(c.id) === selectedP1CharacterId.value
   );
   const p2Character = characters.value.find(
-    (c) => c.id === selectedP2CharacterId.value
+    (c) => Number(c.id) === selectedP2CharacterId.value
   );
 
   if (!p1 || !p2 || !p1Character || !p2Character) {
@@ -209,7 +313,11 @@ async function startBattle() {
 
     <p v-if="error" class="error">{{ error }}</p>
 
-    <div v-if="showP1CharacterModal" class="modal-overlay" @click.self="showP1CharacterModal = false">
+    <div
+      v-if="showP1CharacterModal"
+      class="modal-overlay"
+      @click.self="showP1CharacterModal = false"
+    >
       <div class="modal">
         <h2>P1キャラクター選択</h2>
         <div class="character-grid">
@@ -226,7 +334,11 @@ async function startBattle() {
       </div>
     </div>
 
-    <div v-if="showP2CharacterModal" class="modal-overlay" @click.self="showP2CharacterModal = false">
+    <div
+      v-if="showP2CharacterModal"
+      class="modal-overlay"
+      @click.self="showP2CharacterModal = false"
+    >
       <div class="modal">
         <h2>P2キャラクター選択</h2>
         <div class="character-grid">

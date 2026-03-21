@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import PieceCone from "./PieceCone.vue";
 import type { Piece, PieceSize, Player } from "../../types/battle.types";
 
-defineProps<{
+const props = defineProps<{
   title: string;
   pieces: Piece[];
   currentPlayer: Player;
@@ -17,6 +18,33 @@ defineProps<{
 const emit = defineEmits<{
   select: [pieceId: string];
 }>();
+
+type ReserveSlot = {
+  id: string;
+  size: PieceSize;
+  piece: Piece | null;
+};
+
+const reserveSlots = computed<ReserveSlot[]>(() => {
+  const slotDefs: Array<{ id: string; size: PieceSize }> = [
+    { id: `P${props.owner}-S1`, size: 1 },
+    { id: `P${props.owner}-S2`, size: 1 },
+    { id: `P${props.owner}-M1`, size: 2 },
+    { id: `P${props.owner}-M2`, size: 2 },
+    { id: `P${props.owner}-L1`, size: 3 },
+    { id: `P${props.owner}-L2`, size: 3 },
+  ];
+
+  return slotDefs.map((slot) => ({
+    ...slot,
+    piece: props.pieces.find((piece) => piece.id === slot.id) ?? null,
+  }));
+});
+
+function handleSelect(piece: Piece | null) {
+  if (!piece) return;
+  emit("select", piece.id);
+}
 </script>
 
 <template>
@@ -25,24 +53,35 @@ const emit = defineEmits<{
 
     <div class="reserve-grid">
       <button
-        v-for="piece in pieces"
-        :key="piece.id"
+        v-for="slot in reserveSlots"
+        :key="slot.id"
         class="reserve-piece"
         :class="[
-          pieceSizeClass(piece.size),
-          { selected: currentPlayer === owner && isSelectedReservePiece(piece.id) }
+          pieceSizeClass(slot.size),
+          {
+            selected:
+              slot.piece &&
+              currentPlayer === owner &&
+              isSelectedReservePiece(slot.piece.id),
+            empty: !slot.piece
+          }
         ]"
-        :disabled="currentPlayer !== owner || winner !== null"
-        @click="emit('select', piece.id)"
-        :title="reserveText(piece)"
+        :disabled="!slot.piece || currentPlayer !== owner || winner !== null"
+        @click="handleSelect(slot.piece)"
+        :title="slot.piece ? reserveText(slot.piece) : ''"
+        type="button"
       >
-        <div class="reserve-piece-inner" :class="pieceSizeClass(piece.size)">
+        <div class="reserve-piece-inner" :class="pieceSizeClass(slot.size)">
           <PieceCone
-            :size="piece.size"
-            :owner="piece.owner"
-            :image="playerImage(piece.owner)"
+            v-if="slot.piece"
+            :size="slot.piece.size"
+            :owner="slot.piece.owner"
+            :image="playerImage(slot.piece.owner)"
             placement="reserve"
-            :selected="currentPlayer === owner && isSelectedReservePiece(piece.id)"
+            :selected="
+              currentPlayer === owner &&
+              isSelectedReservePiece(slot.piece.id)
+            "
           />
         </div>
       </button>
@@ -100,6 +139,10 @@ const emit = defineEmits<{
   opacity: 0.72;
 }
 
+.reserve-piece.empty {
+  opacity: 0.35;
+}
+
 .reserve-piece.selected {
   border-color: #ffd86b;
   box-shadow: 0 0 0 2px rgba(255, 216, 107, 0.25);
@@ -112,7 +155,6 @@ const emit = defineEmits<{
   transform-origin: center center;
 }
 
-/* 持ち駒だけ縮尺を分ける */
 .reserve-piece-inner.piece-s {
   transform: scale(var(--battle-reserve-scale-s, 0.72));
 }
@@ -125,7 +167,6 @@ const emit = defineEmits<{
   transform: scale(var(--battle-reserve-scale-l, 0.96));
 }
 
-/* マス側の高さも持ち駒専用で調整 */
 .reserve-piece.piece-s {
   min-height: var(--battle-reserve-height-s, 88px);
 }

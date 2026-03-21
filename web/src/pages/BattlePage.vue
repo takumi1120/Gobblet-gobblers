@@ -430,15 +430,17 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 340px; /* 左にボタン、右にルール */
   gap: var(--battle-bottom-gap);
-  align-items: start;
+  align-items: end;
   position: relative;
   z-index: 2;
 }
 .battle-controls {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
+   align-self: end;  
   justify-self: start;   /* ← 左寄せ */
   min-width: 0;
+  
 }
 
 .battle-controls :deep(.buttons) {
