@@ -308,9 +308,12 @@ async function startBattle() {
     <div class="bottom-buttons">
       <button @click="go('/result')">戦績表示</button>
       <button @click="startBattle">対戦開始</button>
-      <button @click="go('/')">モード選択に戻る</button>
       <button @click="go('/user')">ユーザー登録</button>
     </div>
+
+    <button class="back-mode-button" @click="go('/')">
+      モード選択に戻る
+    </button>
 
     <p v-if="error" class="error">{{ error }}</p>
 
@@ -479,6 +482,14 @@ button:hover {
   gap: 12px;
 }
 
+.back-mode-button {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  z-index: 1;
+  margin: 0;
+}
+
 .error {
   position: absolute;
   bottom: 8px;
@@ -565,12 +576,18 @@ button:hover {
 @media (max-width: 768px) {
   .app {
     min-height: 100dvh;
-    padding: 20px 16px 24px;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 14px)
+      16px
+      calc(env(safe-area-inset-bottom, 0px) + 18px);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 14px;
+    gap: 12px;
+    background:
+      url("../assets/startpage.png") center 108px / min(72vw, 300px) no-repeat,
+      url("../assets/tavern-bg.png") center center / cover no-repeat;
   }
 
   h1 {
@@ -579,10 +596,11 @@ button:hover {
     left: auto;
     transform: none;
     width: 100%;
-    font-size: 30px;
-    line-height: 1.15;
-    margin-top: 6px;
-    margin-bottom: clamp(110px, 18vh, 180px);
+    font-size: 28px;
+    line-height: 1.1;
+    margin-top: 0;
+    margin-bottom: 150px;
+    padding-inline: 8px;
   }
 
   .player-box {
@@ -590,7 +608,7 @@ button:hover {
     top: auto;
     left: auto;
     right: auto;
-    width: min(92vw, 360px);
+    width: min(100%, 360px);
     gap: 10px;
   }
 
@@ -627,6 +645,7 @@ button:hover {
     gap: 12px;
     text-align: left;
     width: 100%;
+    min-height: 104px;
   }
 
   .character-preview {
@@ -641,15 +660,27 @@ button:hover {
     bottom: auto;
     left: auto;
     transform: none;
-    width: min(92vw, 360px);
+    width: min(100%, 360px);
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
   .bottom-buttons button {
     width: 100%;
+  }
+
+  .bottom-buttons button:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .back-mode-button {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: min(100%, 360px);
+    margin-top: 0;
   }
 
   .error {
@@ -657,7 +688,7 @@ button:hover {
     bottom: auto;
     left: auto;
     transform: none;
-    width: min(92vw, 360px);
+    width: min(100%, 360px);
     text-align: center;
   }
 
@@ -677,24 +708,45 @@ button:hover {
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 430px) and (min-height: 850px) {
   .app {
-    padding: 16px 12px 20px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+    background:
+      url("../assets/startpage.png") center 104px / min(70vw, 292px) no-repeat,
+      url("../assets/tavern-bg.png") center center / cover no-repeat;
   }
 
   h1 {
-    font-size: 24px;
-    margin-bottom: clamp(90px, 15vh, 140px);
+    font-size: 26px;
+    margin-bottom: 146px;
   }
 
   .player-box,
   .bottom-buttons,
+  .back-mode-button,
   .error {
-    width: 100%;
+    width: min(100%, 352px);
+  }
+}
+
+@media (max-width: 420px) {
+  .app {
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 12px)
+      12px
+      calc(env(safe-area-inset-bottom, 0px) + 16px);
   }
 
-  .bottom-buttons {
-    grid-template-columns: 1fr;
+  h1 {
+    font-size: 24px;
+    margin-bottom: 136px;
+  }
+
+  .player-box,
+  .bottom-buttons,
+  .back-mode-button,
+  .error {
+    width: 100%;
   }
 
   .select-label {
@@ -709,6 +761,7 @@ button:hover {
   .selected-character {
     padding: 10px;
     gap: 10px;
+    min-height: 96px;
   }
 
   .character-preview {
@@ -722,6 +775,16 @@ button:hover {
 
   .character-grid {
     gap: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .bottom-buttons button:last-child {
+    grid-column: auto;
   }
 }
 </style>

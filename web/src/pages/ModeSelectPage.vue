@@ -13,12 +13,12 @@ function goOnline() {
 </script>
 
 <template>
-  <div class="mode-page">
-    <div class="mode-title">
-      <div class="mode-title-main">Gobblet Gobblers</div>
-      <div class="mode-title-sub">モードを選択してください</div>
-    </div>
+  <div class="mode-title">
+    <div class="mode-title-main">Gobblet Gobblers</div>
+    <div class="mode-title-sub">モードを選択してください</div>
+  </div>
 
+  <div class="mode-page">
     <div class="mode-stage">
       <button
         class="board-button board-left"
@@ -48,40 +48,11 @@ function goOnline() {
 </template>
 
 <style scoped>
-:global(html, body, #app) {
-  margin: 0;
-  min-height: 100%;
-}
-
-:global(body) {
-  background: #0d0805;
-}
-
-:global(#app) {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  border-inline: 0;
-}
-
-.mode-page {
-  position: relative;
-  min-height: 100svh;
-  display: grid;
-  place-items: center;
-  padding: 12px;
-  background:
-    radial-gradient(circle at top, rgba(87, 58, 29, 0.14), transparent 32%),
-    linear-gradient(180deg, #120b07 0%, #0d0805 100%);
-  overflow: hidden;
-}
-
 .mode-title {
   position: absolute;
   top: 18%;
   left: 50%;
   transform: translateX(-50%);
-  width: min(92vw, 900px);
   text-align: center;
   z-index: 5;
   pointer-events: none;
@@ -109,6 +80,33 @@ function goOnline() {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+:global(html, body, #app) {
+  margin: 0;
+  min-height: 100%;
+}
+
+:global(body) {
+  background: #0d0805;
+}
+
+:global(#app) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-inline: 0;
+}
+
+.mode-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  background:
+    radial-gradient(circle at top, rgba(87, 58, 29, 0.14), transparent 32%),
+    linear-gradient(180deg, #120b07 0%, #0d0805 100%);
+  overflow: hidden;
+}
+
 .mode-stage {
   position: relative;
   width: min(1520px, 100vw);
@@ -116,6 +114,7 @@ function goOnline() {
   background: url("/backgrounds/mode-bg.jpg") center center / contain no-repeat;
 }
 
+/* 透明クリック領域 */
 .board-button {
   position: absolute;
   top: 40.9%;
@@ -128,11 +127,11 @@ function goOnline() {
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
   transition:
     transform 0.18s ease,
     filter 0.18s ease,
     box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .board-left {
@@ -159,8 +158,7 @@ function goOnline() {
   filter: brightness(1.04);
 }
 
-.board-button:hover::before,
-.board-button:active::before {
+.board-button:hover::before {
   opacity: 1;
 }
 
@@ -170,6 +168,7 @@ function goOnline() {
     0 10px 24px rgba(0, 0, 0, 0.36);
 }
 
+/* ボード中央に文字を固定 */
 .board-label {
   position: absolute;
   inset: 0;
@@ -235,7 +234,7 @@ function goOnline() {
 
   .board-left {
     left: 22.5%;
-    margin-left: 48px;
+    margin-left: 40px;
   }
 
   .board-right {
@@ -260,108 +259,163 @@ function goOnline() {
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   .mode-page {
-    grid-template-rows: auto 1fr;
-    align-items: stretch;
-    padding: 0;
+    min-height: 100dvh;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 12px)
+      0
+      calc(env(safe-area-inset-bottom, 0px) + 12px);
+    align-content: center;
   }
 
   .mode-title {
-    top: max(20px, env(safe-area-inset-top));
-    width: min(94vw, 540px);
+    top: 11%;
+    width: 100%;
+    padding: 0 12px;
   }
 
   .mode-title-main {
-    font-size: clamp(28px, 8.5vw, 48px);
+    font-size: 28px;
+    line-height: 1.08;
     white-space: normal;
   }
 
   .mode-title-sub {
     margin-top: 8px;
-    font-size: clamp(12px, 3.5vw, 16px);
-    letter-spacing: 0.1em;
+    font-size: 13px;
+    letter-spacing: 0.12em;
   }
 
   .mode-stage {
-    width: max(100vw, calc((100svh - 148px) * 16 / 9));
-    height: calc(100svh - 120px);
-    aspect-ratio: auto;
-    background-size: cover;
-    background-position: center center;
+    width: 100vw;
   }
 
   .board-button {
-    top: 45.2%;
-    width: 27%;
-    height: 27.5%;
-    border-radius: 20px;
+    top: 40.4%;
+    width: 20.2%;
+    height: 35.2%;
+    border-radius: 14px;
   }
 
   .board-left {
-    left: 20.6%;
-    margin-left: 0;
+    left: 22.3%;
+    margin-left: 16px;
   }
 
   .board-right {
-    left: 52.4%;
+    left: 52.9%;
   }
 
   .board-label {
-    padding: 0 12%;
+    padding: 0 10%;
   }
 
-  .board-left .board-label,
+  .board-left .board-label {
+    transform: translateX(2%);
+  }
+
   .board-right .board-label {
-    transform: none;
+    transform: translateX(0);
   }
 
   .board-title {
-    font-size: clamp(18px, 4.6vw, 30px);
-    line-height: 1.2;
-  }
-
-  .board-sub {
-    margin-top: 8px;
-    font-size: clamp(10px, 2.5vw, 13px);
-    letter-spacing: 0.12em;
-  }
-}
-
-@media (max-width: 520px) {
-  .mode-title {
-    top: max(16px, env(safe-area-inset-top));
-  }
-
-  .mode-stage {
-    width: max(112vw, calc((100svh - 132px) * 16 / 9));
-    height: calc(100svh - 104px);
-  }
-
-  .board-button {
-    top: 48.8%;
-    width: 30.5%;
-    height: 24.8%;
-  }
-
-  .board-left {
-    left: 17.2%;
-    margin-left: 20px;
-  }
-
-  .board-right {
-    left: 52.2%;
-    margin-right: 15px;
-  }
-
-  .board-title {
-    font-size: clamp(16px, 4.8vw, 24px);
+    font-size: clamp(13px, 3.25vw, 22px);
+    line-height: 1.18;
   }
 
   .board-sub {
     margin-top: 6px;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-size: clamp(8px, 1.8vw, 11px);
+    letter-spacing: 0.14em;
+  }
+}
+
+@media (max-width: 430px) and (min-height: 850px) {
+  .mode-title {
+    top: 10%;
+  }
+
+  .mode-title-main {
+    font-size: 26px;
+  }
+
+  .mode-title-sub {
+    font-size: 12px;
+    margin-top: 7px;
+  }
+
+  .board-button {
+    top: 40.2%;
+    width: 20.8%;
+    height: 35.8%;
+  }
+
+  .board-left {
+    left: 22.1%;
+    margin-left: 22px;
+  }
+
+  .board-right {
+    left: 53.1%;
+    
+  }
+
+  .board-label {
+    padding: 0 9%;
+  }
+  .board-right .board-label {
+  transform: translateX(-7%);
+}
+
+  .board-title {
+    font-size: 13px;
+    line-height: 1.14;
+  }
+
+  .board-sub {
+    margin-top: 5px;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (max-width: 390px) {
+  .mode-title {
+    top: 9.5%;
+  }
+
+  .mode-title-main {
+    font-size: 24px;
+  }
+
+  .mode-title-sub {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .board-button {
+    top: 40.1%;
+    width: 21.1%;
+    height: 36%;
+  }
+
+  .board-left {
+    left: 21.9%;
+    margin-left: 10px;
+  }
+
+  .board-right {
+    left: 53.2%;
+  }
+
+  .board-title {
+    font-size: 12px;
+  }
+
+  .board-sub {
+    font-size: 7px;
+    margin-top: 4px;
   }
 }
 </style>
