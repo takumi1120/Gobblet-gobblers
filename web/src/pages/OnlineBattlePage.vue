@@ -106,17 +106,38 @@ onBeforeUnmount(() => {
         <div class="coin-toss-card">
           <p class="coin-toss-label">先手決定</p>
 
-          <div
-            class="coin-toss-coin"
-            :class="[
-              { spinning: coinTossSpinning },
-              coinTossFace === 'heads' ? 'heads' : '',
-              coinTossFace === 'tails' ? 'tails' : '',
-            ]"
-          >
-            <span class="coin-face face-front">表</span>
-            <span class="coin-face face-back">裏</span>
-          </div>
+        <div
+  class="coin-toss-coin"
+  :class="[
+    { spinning: coinTossSpinning },
+    coinTossFace === 'heads' ? 'heads' : '',
+    coinTossFace === 'tails' ? 'tails' : '',
+  ]"
+>
+  <span class="coin-face face-front face-p1">
+    <template v-if="player1CharacterImage">
+      <img
+        class="coin-face-image"
+        :src="player1CharacterImage"
+        :alt="`${player1Name} のコイン`"
+      />
+    </template>
+    <span v-else class="coin-face-fallback">表</span>
+    <span class="coin-face-badge badge-p1">{{ player1Name }}</span>
+  </span>
+
+  <span class="coin-face face-back face-p2">
+    <template v-if="player2CharacterImage">
+      <img
+        class="coin-face-image"
+        :src="player2CharacterImage"
+        :alt="`${player2Name} のコイン`"
+      />
+    </template>
+    <span v-else class="coin-face-fallback">裏</span>
+    <span class="coin-face-badge badge-p2">{{ player2Name }}</span>
+  </span>
+</div>
 
           <p class="coin-toss-text">{{ coinTossResultText }}</p>
           <p class="coin-toss-sub">表: {{ player1Name }} / 裏: {{ player2Name }}</p>
@@ -143,49 +164,47 @@ onBeforeUnmount(() => {
       <p v-if="error" class="error-inline">{{ error }}</p>
 
       <div class="game-layout">
-        <ReservePanel
-          class="reserve-panel"
-          :title="player2Name"
-          :pieces="reserveP2"
-          :current-player="currentPlayer"
-          :owner="2"
-          :winner="winner"
-          :panel-enabled="localPlayer === 2"
-          :piece-size-class="pieceSizeClass"
-          :is-selected-reserve-piece="isSelectedReservePiece"
-          :reserve-text="reserveText"
-          :player-image="playerImage"
-          @select="selectReservePiece"
-        />
+  <ReservePanel
+    class="reserve-panel"
+    :title="player1Name"
+    :pieces="reserveP1"
+    :current-player="currentPlayer"
+    :owner="1"
+    :winner="winner"
+    :piece-size-class="pieceSizeClass"
+    :is-selected-reserve-piece="isSelectedReservePiece"
+    :reserve-text="reserveText"
+    :player-image="playerImage"
+    @select="selectReservePiece"
+  />
 
-        <BattleBoard
-          class="battle-board"
-          :board="board"
-          :winner="winner"
-          :board-piece-at="boardPieceAt"
-          :piece-size-class="pieceSizeClass"
-          :is-selected-board-piece="isSelectedBoardPiece"
-          :is-playable-cell="isPlayableCell"
-          :is-winning-cell="isWinningCell"
-          :player-image="playerImage"
-          @cell-click="handleCellClick"
-        />
+  <BattleBoard
+    class="battle-board"
+    :board="board"
+    :winner="winner"
+    :board-piece-at="boardPieceAt"
+    :piece-size-class="pieceSizeClass"
+    :is-selected-board-piece="isSelectedBoardPiece"
+    :is-playable-cell="isPlayableCell"
+    :is-winning-cell="isWinningCell"
+    :player-image="playerImage"
+    @cell-click="handleCellClick"
+  />
 
-        <ReservePanel
-          class="reserve-panel"
-          :title="player1Name"
-          :pieces="reserveP1"
-          :current-player="currentPlayer"
-          :owner="1"
-          :winner="winner"
-          :panel-enabled="localPlayer === 1"
-          :piece-size-class="pieceSizeClass"
-          :is-selected-reserve-piece="isSelectedReservePiece"
-          :reserve-text="reserveText"
-          :player-image="playerImage"
-          @select="selectReservePiece"
-        />
-      </div>
+  <ReservePanel
+    class="reserve-panel"
+    :title="player2Name"
+    :pieces="reserveP2"
+    :current-player="currentPlayer"
+    :owner="2"
+    :winner="winner"
+    :piece-size-class="pieceSizeClass"
+    :is-selected-reserve-piece="isSelectedReservePiece"
+    :reserve-text="reserveText"
+    :player-image="playerImage"
+    @select="selectReservePiece"
+  />
+</div>
 
       <div class="bottom-layout">
         <BattleControls
@@ -299,7 +318,7 @@ onBeforeUnmount(() => {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
-  margin-right: 0;
+  margin-right: 300px;
 }
 
 h1 {
@@ -365,25 +384,76 @@ h1 {
 .coin-toss-coin.tails {
   transform: rotateY(180deg);
 }
-
 .coin-face {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border-radius: 999px;
   backface-visibility: hidden;
-  font-size: 28px;
-  font-weight: 900;
-  color: #4a2509;
-  border: 3px solid rgba(255, 238, 196, 0.72);
-  background:
-    radial-gradient(circle at 30% 30%, #fff3bf 0%, #f8d36f 45%, #c9892c 100%);
   box-shadow:
     inset 0 3px 10px rgba(255, 255, 255, 0.38),
-    inset 0 -8px 16px rgba(107, 59, 12, 0.24),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.18),
     0 12px 24px rgba(0, 0, 0, 0.28);
+}
+
+.face-p1 {
+  border: 3px solid rgba(210, 255, 224, 0.82);
+  background:
+    radial-gradient(circle at 30% 30%, #ebfff1 0%, #66cf86 46%, #1f6f3d 100%);
+}
+
+.face-p2 {
+  border: 3px solid rgba(255, 221, 221, 0.82);
+  background:
+    radial-gradient(circle at 30% 30%, #fff0f0 0%, #eb7272 46%, #8b2323 100%);
+}
+
+.coin-face-image {
+  width: 72%;
+  height: 72%;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 247, 224, 0.9);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.coin-face-fallback {
+  font-size: 28px;
+  font-weight: 900;
+  color: #2f1607;
+}
+
+.coin-face-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 16px);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+.badge-p1 {
+  color: #effff4;
+  background: rgba(18, 93, 47, 0.88);
+}
+
+.badge-p2 {
+  color: #fff2f2;
+  background: rgba(123, 25, 25, 0.88);
 }
 
 .face-back {
