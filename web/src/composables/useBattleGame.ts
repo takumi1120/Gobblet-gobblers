@@ -109,16 +109,20 @@ function cloneState(state: SimulatedState): SimulatedState {
     };
 }
 
+function pickRandomStartingPlayer(): Player {
+    return Math.random() < 0.5 ? 1 : 2;
+}
+
 export function useBattleGame(params: Params) {
     const board = ref<Cell[][]>(createEmptyBoard());
     const reserveP1 = ref<Piece[]>(createPlayerPieces(1));
     const reserveP2 = ref<Piece[]>(createPlayerPieces(2));
 
-    const currentPlayer = ref<Player>(1);
+    const currentPlayer = ref<Player>(pickRandomStartingPlayer());
     const winner = ref<Player | null>(null);
     const selectedSource = ref<SelectedSource>(null);
     const winningLine = ref<Line | null>(null);
-    const message = ref(`${params.player1Name.value} の手番です`);
+    const message = ref(`${playerDisplayName(currentPlayer.value)} の手番です`);
 
     const cpuPlayer = params.cpuPlayer ?? null;
     const cpuMoveDelayMs = params.cpuMoveDelayMs ?? 700;
@@ -720,15 +724,19 @@ export function useBattleGame(params: Params) {
         board.value = createEmptyBoard();
         reserveP1.value = createPlayerPieces(1);
         reserveP2.value = createPlayerPieces(2);
-        currentPlayer.value = 1;
+        currentPlayer.value = pickRandomStartingPlayer();
         winner.value = null;
         selectedSource.value = null;
         winningLine.value = null;
-        message.value = `${params.player1Name.value} の手番です`;
+        message.value = `${playerDisplayName(currentPlayer.value)} の手番です`;
 
-        if (cpuPlayer === 1) {
+        if (cpuPlayer !== null && currentPlayer.value === cpuPlayer) {
             scheduleCpuTurn();
         }
+    }
+
+    if (cpuPlayer !== null && currentPlayer.value === cpuPlayer) {
+        scheduleCpuTurn();
     }
 
     onBeforeUnmount(() => {
