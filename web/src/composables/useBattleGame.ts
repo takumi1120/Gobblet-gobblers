@@ -31,6 +31,8 @@ type CandidateMove = {
     piece: Piece;
 };
 
+type CoinFace = "heads" | "tails";
+
 const SIZE_LABEL: Record<PieceSize, string> = {
     1: "S",
     2: "M",
@@ -113,22 +115,50 @@ function pickRandomStartingPlayer(): Player {
     return Math.random() < 0.5 ? 1 : 2;
 }
 
+function coinFaceFromPlayer(player: Player): CoinFace {
+    return player === 1 ? "heads" : "tails";
+}
+
 export function useBattleGame(params: Params) {
     const board = ref<Cell[][]>(createEmptyBoard());
     const reserveP1 = ref<Piece[]>(createPlayerPieces(1));
     const reserveP2 = ref<Piece[]>(createPlayerPieces(2));
 
-    const currentPlayer = ref<Player>(pickRandomStartingPlayer());
+    const currentPlayer = ref<Player>(1);
     const winner = ref<Player | null>(null);
     const selectedSource = ref<SelectedSource>(null);
     const winningLine = ref<Line | null>(null);
-    const message = ref(`${playerDisplayName(currentPlayer.value)} の手番です`);
+    const message = ref("コイントスで先手を決めています...");
+
+    const coinTossVisible = ref(false);
+    const coinTossSpinning = ref(false);
+    const coinTossFace = ref<CoinFace | null>(null);
+    const coinTossStarter = ref<Player | null>(null);
 
     const cpuPlayer = params.cpuPlayer ?? null;
     const cpuMoveDelayMs = params.cpuMoveDelayMs ?? 700;
     const cpuThinking = ref(false);
 
     let cpuTimer: number | null = null;
+    let coinRevealTimer: number | null = null;
+    let coinHideTimer: number | null = null;
+
+    function playerDisplayName(player: Player): string {
+        return player === 1 ? params.player1Name.value : params.player2Name.value;
+    }
+
+    const coinTossResultText = computed(() => {
+        if (coinTossSpinning.value) {
+            return "コイントス中...";
+        }
+
+        if (!coinTossFace.value || coinTossStarter.value === null) {
+            return "";
+        }
+
+        const faceLabel = coinTossFace.value === "heads" ? "表" : "裏";
+        return `${faceLabel}！ ${playerDisplayName(coinTossStarter.value)} が先手です`;
+    });
 
     function clearCpuTimer() {
         if (cpuTimer !== null) {
@@ -138,8 +168,51 @@ export function useBattleGame(params: Params) {
         cpuThinking.value = false;
     }
 
-    function playerDisplayName(player: Player): string {
-        return player === 1 ? params.player1Name.value : params.player2Name.value;
+    function clearCoinTossTimers() {
+        if (coinRevealTimer !== null) {
+            window.clearTimeout(coinRevealTimer);
+            coinRevealTimer = null;
+        }
+
+        if (coinHideTimer !== null) {
+            window.clearTimeout(coinHideTimer);
+            coinHideTimer = null;
+        }
+    }
+
+    function startCoinToss(nextStarter: Player = pickRandomStartingPlayer()) {
+        clearCpuTimer();
+        clearCoinTossTimers();
+
+        currentPlayer.value = nextStarter;
+        winner.value = null;
+        selectedSource.value = null;
+        winningLine.value = null;
+
+        coinTossVisible.value = true;
+        coinTossSpinning.value = true;
+        coinTossFace.value = null;
+        coinTossStarter.value = null;
+
+        message.value = "コイントスで先手を決めています...";
+
+        coinRevealTimer = window.setTimeout(() => {
+            coinRevealTimer = null;
+            coinTossSpinning.value = false;
+            coinTossFace.value = coinFaceFromPlayer(nextStarter);
+            coinTossStarter.value = nextStarter;
+            message.value = `${playerDisplayName(nextStarter)} が先手です`;
+
+            coinHideTimer = window.setTimeout(() => {
+                coinHideTimer = null;
+                coinTossVisible.value = false;
+                message.value = `${playerDisplayName(currentPlayer.value)} の手番です`;
+
+                if (cpuPlayer !== null && currentPlayer.value === cpuPlayer) {
+                    scheduleCpuTurn();
+                }
+            }, 900);
+        }, 1200);
     }
 
     function getTopPiece(cell: Cell): Piece | null {
@@ -245,6 +318,7 @@ export function useBattleGame(params: Params) {
     }
 
     function selectReservePiece(pieceId: string) {
+        if (coinTossVisible.value) return;
         if (winner.value) return;
 
         if (isCpuTurn()) {
@@ -319,7 +393,7 @@ export function useBattleGame(params: Params) {
 
     function isPlayableCell(row: number, col: number): boolean {
         const piece = selectedPiece.value;
-        if (!piece || winner.value || isCpuTurn()) return false;
+        if (!piece || winner.value || isCpuTurn() || coinTossVisible.value) return false;
 
         if (
             selectedSource.value?.type === "board" &&
@@ -674,6 +748,7 @@ export function useBattleGame(params: Params) {
     }
 
     function handleCellClick(row: number, col: number) {
+        if (coinTossVisible.value) return;
         if (winner.value) return;
 
         if (isCpuTurn()) {
@@ -721,26 +796,20 @@ export function useBattleGame(params: Params) {
 
     function resetGame() {
         clearCpuTimer();
+        clearCoinTossTimers();
+
         board.value = createEmptyBoard();
         reserveP1.value = createPlayerPieces(1);
         reserveP2.value = createPlayerPieces(2);
-        currentPlayer.value = pickRandomStartingPlayer();
-        winner.value = null;
-        selectedSource.value = null;
-        winningLine.value = null;
-        message.value = `${playerDisplayName(currentPlayer.value)} の手番です`;
 
-        if (cpuPlayer !== null && currentPlayer.value === cpuPlayer) {
-            scheduleCpuTurn();
-        }
+        startCoinToss();
     }
 
-    if (cpuPlayer !== null && currentPlayer.value === cpuPlayer) {
-        scheduleCpuTurn();
-    }
+    startCoinToss();
 
     onBeforeUnmount(() => {
         clearCpuTimer();
+        clearCoinTossTimers();
     });
 
     return {
@@ -754,6 +823,11 @@ export function useBattleGame(params: Params) {
         message,
         selectedPiece,
         cpuThinking,
+
+        coinTossVisible,
+        coinTossSpinning,
+        coinTossFace,
+        coinTossResultText,
 
         playerDisplayName,
         selectReservePiece,

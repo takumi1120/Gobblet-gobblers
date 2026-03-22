@@ -114,6 +114,10 @@ function createEmptyBoard(): Cell[][] {
     );
 }
 
+function pickRandomStartingPlayer(): Player {
+    return Math.random() < 0.5 ? 1 : 2;
+}
+
 function normalizeRoomId(value: unknown): string {
     return typeof value === "string" ? value.trim().toUpperCase() : "";
 }
@@ -248,14 +252,19 @@ function resetRoomState(room: OnlineRoom) {
     room.board = createEmptyBoard();
     room.reserveP1 = createPlayerPieces(1);
     room.reserveP2 = createPlayerPieces(2);
-    room.currentPlayer = 1;
     room.winner = null;
     room.winningLine = null;
     room.status = room.players[1] && room.players[2] ? "playing" : "waiting";
-    room.message =
-        room.status === "playing"
-            ? `${playerDisplayName(room, 1)} の手番です`
-            : "対戦相手の参加を待っています";
+
+    if (room.status === "playing") {
+        const starter = pickRandomStartingPlayer();
+        room.currentPlayer = starter;
+        room.message = `${playerDisplayName(room, starter)} の手番です`;
+    } else {
+        room.currentPlayer = 1;
+        room.message = "対戦相手の参加を待っています";
+    }
+
     room.updatedAt = Date.now();
 }
 
@@ -318,10 +327,13 @@ router.post("/rooms/join", (req, res) => {
 
     room.players[2] = playerInfo;
     room.status = "playing";
-    room.currentPlayer = 1;
+
+    const starter = pickRandomStartingPlayer();
+
+    room.currentPlayer = starter;
     room.winner = null;
     room.winningLine = null;
-    room.message = `${playerDisplayName(room, 1)} の手番です`;
+    room.message = `${playerDisplayName(room, starter)} の手番です`;
     room.updatedAt = Date.now();
 
     return res.json({

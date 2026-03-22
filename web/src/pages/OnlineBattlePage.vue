@@ -45,6 +45,10 @@ const {
   isPlayableCell,
   reserveText,
   boardPieceAt,
+  coinTossVisible,
+  coinTossSpinning,
+  coinTossFace,
+  coinTossResultText,
 } = useOnlineBattleGame({
   roomId,
   localPlayer,
@@ -98,6 +102,27 @@ onBeforeUnmount(() => {
 
       <h1>Gobblet Gobblers</h1>
 
+      <div v-if="coinTossVisible" class="coin-toss-overlay">
+        <div class="coin-toss-card">
+          <p class="coin-toss-label">先手決定</p>
+
+          <div
+            class="coin-toss-coin"
+            :class="[
+              { spinning: coinTossSpinning },
+              coinTossFace === 'heads' ? 'heads' : '',
+              coinTossFace === 'tails' ? 'tails' : '',
+            ]"
+          >
+            <span class="coin-face face-front">表</span>
+            <span class="coin-face face-back">裏</span>
+          </div>
+
+          <p class="coin-toss-text">{{ coinTossResultText }}</p>
+          <p class="coin-toss-sub">表: {{ player1Name }} / 裏: {{ player2Name }}</p>
+        </div>
+      </div>
+
       <BattleHeader
         class="battle-header"
         :player1-name="player1Name"
@@ -117,48 +142,50 @@ onBeforeUnmount(() => {
 
       <p v-if="error" class="error-inline">{{ error }}</p>
 
-     <div class="game-layout">
-  <ReservePanel
-    class="reserve-panel"
-    :title="player1Name"
-    :pieces="reserveP1"
-    :current-player="currentPlayer"
-    :owner="1"
-    :winner="winner"
-    :piece-size-class="pieceSizeClass"
-    :is-selected-reserve-piece="isSelectedReservePiece"
-    :reserve-text="reserveText"
-    :player-image="playerImage"
-    @select="selectReservePiece"
-  />
+      <div class="game-layout">
+        <ReservePanel
+          class="reserve-panel"
+          :title="player2Name"
+          :pieces="reserveP2"
+          :current-player="currentPlayer"
+          :owner="2"
+          :winner="winner"
+          :panel-enabled="localPlayer === 2"
+          :piece-size-class="pieceSizeClass"
+          :is-selected-reserve-piece="isSelectedReservePiece"
+          :reserve-text="reserveText"
+          :player-image="playerImage"
+          @select="selectReservePiece"
+        />
 
-  <BattleBoard
-    class="battle-board"
-    :board="board"
-    :winner="winner"
-    :board-piece-at="boardPieceAt"
-    :piece-size-class="pieceSizeClass"
-    :is-selected-board-piece="isSelectedBoardPiece"
-    :is-playable-cell="isPlayableCell"
-    :is-winning-cell="isWinningCell"
-    :player-image="playerImage"
-    @cell-click="handleCellClick"
-  />
+        <BattleBoard
+          class="battle-board"
+          :board="board"
+          :winner="winner"
+          :board-piece-at="boardPieceAt"
+          :piece-size-class="pieceSizeClass"
+          :is-selected-board-piece="isSelectedBoardPiece"
+          :is-playable-cell="isPlayableCell"
+          :is-winning-cell="isWinningCell"
+          :player-image="playerImage"
+          @cell-click="handleCellClick"
+        />
 
-  <ReservePanel
-    class="reserve-panel"
-    :title="player2Name"
-    :pieces="reserveP2"
-    :current-player="currentPlayer"
-    :owner="2"
-    :winner="winner"
-    :piece-size-class="pieceSizeClass"
-    :is-selected-reserve-piece="isSelectedReservePiece"
-    :reserve-text="reserveText"
-    :player-image="playerImage"
-    @select="selectReservePiece"
-  />
-</div>
+        <ReservePanel
+          class="reserve-panel"
+          :title="player1Name"
+          :pieces="reserveP1"
+          :current-player="currentPlayer"
+          :owner="1"
+          :winner="winner"
+          :panel-enabled="localPlayer === 1"
+          :piece-size-class="pieceSizeClass"
+          :is-selected-reserve-piece="isSelectedReservePiece"
+          :reserve-text="reserveText"
+          :player-image="playerImage"
+          @select="selectReservePiece"
+        />
+      </div>
 
       <div class="bottom-layout">
         <BattleControls
@@ -272,7 +299,7 @@ onBeforeUnmount(() => {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
-  margin-right: 300px;
+  margin-right: 0;
 }
 
 h1 {
@@ -285,6 +312,104 @@ h1 {
   text-shadow:
     0 2px 10px rgba(0, 0, 0, 0.55),
     0 0 18px rgba(255, 170, 70, 0.22);
+}
+
+.coin-toss-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 6, 3, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.coin-toss-card {
+  width: min(420px, calc(100% - 32px));
+  padding: 24px 20px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 214, 147, 0.38);
+  background:
+    linear-gradient(180deg, rgba(62, 37, 20, 0.96), rgba(30, 18, 10, 0.96));
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 240, 210, 0.18);
+  text-align: center;
+}
+
+.coin-toss-label {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #ffd79b;
+}
+
+.coin-toss-coin {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  margin: 0 auto 16px;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.coin-toss-coin.spinning {
+  animation: coin-spin 0.9s linear infinite;
+}
+
+.coin-toss-coin.heads {
+  transform: rotateY(0deg);
+}
+
+.coin-toss-coin.tails {
+  transform: rotateY(180deg);
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  backface-visibility: hidden;
+  font-size: 28px;
+  font-weight: 900;
+  color: #4a2509;
+  border: 3px solid rgba(255, 238, 196, 0.72);
+  background:
+    radial-gradient(circle at 30% 30%, #fff3bf 0%, #f8d36f 45%, #c9892c 100%);
+  box-shadow:
+    inset 0 3px 10px rgba(255, 255, 255, 0.38),
+    inset 0 -8px 16px rgba(107, 59, 12, 0.24),
+    0 12px 24px rgba(0, 0, 0, 0.28);
+}
+
+.face-back {
+  transform: rotateY(180deg);
+}
+
+.coin-toss-text {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffe9bf;
+}
+
+.coin-toss-sub {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(255, 227, 173, 0.86);
+}
+
+@keyframes coin-spin {
+  from {
+    transform: rotateY(0deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateY(720deg) rotateZ(360deg);
+  }
 }
 
 .battle-header :deep(.player-info-row) {
@@ -649,6 +774,20 @@ h1 {
     width: 100%;
     min-width: 0;
   }
+
+  .coin-toss-card {
+    width: min(360px, calc(100% - 24px));
+    padding: 20px 16px 18px;
+  }
+
+  .coin-toss-coin {
+    width: 96px;
+    height: 96px;
+  }
+
+  .coin-toss-text {
+    font-size: 18px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -677,5 +816,4 @@ h1 {
     height: 100%;
   }
 }
-
 </style>

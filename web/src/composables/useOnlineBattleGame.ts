@@ -10,6 +10,7 @@ import type {
 } from "../types/battle.types";
 
 type RoomStatus = "waiting" | "playing" | "finished";
+type CoinFace = "heads" | "tails";
 
 type OnlinePlayerInfo = {
     userId: number | null;
@@ -30,6 +31,7 @@ type OnlineRoom = {
     winningLine: Line | null;
     message: string;
     status: RoomStatus;
+    updatedAt: number;
 };
 
 type Params = {
@@ -49,6 +51,14 @@ function createEmptyBoard(): Cell[][] {
     );
 }
 
+function isBoardEmpty(board: Cell[][]): boolean {
+    return board.every((row) => row.every((cell) => cell.length === 0));
+}
+
+function coinFaceFromPlayer(player: Player): CoinFace {
+    return player === 1 ? "heads" : "tails";
+}
+
 export function useOnlineBattleGame(params: Params) {
     const room = ref<OnlineRoom | null>(null);
     const loading = ref(true);
@@ -57,7 +67,15 @@ export function useOnlineBattleGame(params: Params) {
     const selectedSource = ref<SelectedSource>(null);
     const localHint = ref<string | null>(null);
 
+    const coinTossVisible = ref(false);
+    const coinTossSpinning = ref(false);
+    const coinTossFace = ref<CoinFace | null>(null);
+    const coinTossStarter = ref<Player | null>(null);
+
     let pollingTimer: number | null = null;
+    let coinRevealTimer: number | null = null;
+    let coinHideTimer: number | null = null;
+    let lastCoinTossKey = "";
 
     function getErrorMessage(e: any, fallback: string): string {
         return (
@@ -66,6 +84,39 @@ export function useOnlineBattleGame(params: Params) {
             e?.message ??
             fallback
         );
+    }
+
+    function clearCoinTossTimers() {
+        if (coinRevealTimer !== null) {
+            window.clearTimeout(coinRevealTimer);
+            coinRevealTimer = null;
+        }
+
+        if (coinHideTimer !== null) {
+            window.clearTimeout(coinHideTimer);
+            coinHideTimer = null;
+        }
+    }
+
+    function playCoinToss(starter: Player) {
+        clearCoinTossTimers();
+
+        coinTossVisible.value = true;
+        coinTossSpinning.value = true;
+        coinTossFace.value = null;
+        coinTossStarter.value = null;
+
+        coinRevealTimer = window.setTimeout(() => {
+            coinRevealTimer = null;
+            coinTossSpinning.value = false;
+            coinTossFace.value = coinFaceFromPlayer(starter);
+            coinTossStarter.value = starter;
+
+            coinHideTimer = window.setTimeout(() => {
+                coinHideTimer = null;
+                coinTossVisible.value = false;
+            }, 900);
+        }, 1200);
     }
 
     function getTopPiece(cell: Cell): Piece | null {
@@ -113,6 +164,19 @@ export function useOnlineBattleGame(params: Params) {
 
     const message = computed(() => {
         return localHint.value ?? room.value?.message ?? "ルーム情報を取得中です";
+    });
+
+    const coinTossResultText = computed(() => {
+        if (coinTossSpinning.value) {
+            return "コイントス中...";
+        }
+
+        if (!coinTossFace.value || coinTossStarter.value === null) {
+            return "";
+        }
+
+        const faceLabel = coinTossFace.value === "heads" ? "表" : "裏";
+        return `${faceLabel}！ ${playerDisplayName(coinTossStarter.value)} が先手です`;
     });
 
     function reserveListFor(player: Player): Piece[] {
@@ -171,6 +235,27 @@ export function useOnlineBattleGame(params: Params) {
 
         error.value = null;
         localHint.value = null;
+
+        if (
+            nextRoom.status !== "playing" ||
+            nextRoom.winner !== null ||
+            !isBoardEmpty(nextRoom.board)
+        ) {
+            clearCoinTossTimers();
+            coinTossVisible.value = false;
+        }
+
+        const coinTossKey = `${nextRoom.updatedAt}-${nextRoom.currentPlayer}-${nextRoom.status}`;
+
+        if (
+            nextRoom.status === "playing" &&
+            nextRoom.winner === null &&
+            isBoardEmpty(nextRoom.board) &&
+            lastCoinTossKey !== coinTossKey
+        ) {
+            lastCoinTossKey = coinTossKey;
+            playCoinToss(nextRoom.currentPlayer);
+        }
     }
 
     async function refreshRoom(silent = false) {
@@ -212,7 +297,7 @@ export function useOnlineBattleGame(params: Params) {
 
     function isPlayableCell(row: number, col: number): boolean {
         const piece = selectedPiece.value;
-        if (!piece || !isMyTurn.value || winner.value) return false;
+        if (!piece || !isMyTurn.value || winner.value || coinTossVisible.value) return false;
 
         if (
             selectedSource.value?.type === "board" &&
@@ -230,6 +315,8 @@ export function useOnlineBattleGame(params: Params) {
     }
 
     function selectReservePiece(pieceId: string) {
+        if (coinTossVisible.value) return;
+
         if (waitingForOpponent.value) {
             localHint.value = "対戦相手の参加を待っています";
             return;
@@ -275,6 +362,7 @@ export function useOnlineBattleGame(params: Params) {
     }
 
     function handleCellClick(row: number, col: number) {
+        if (coinTossVisible.value) return;
         if (!room.value) return;
 
         if (waitingForOpponent.value) {
@@ -354,6 +442,8 @@ export function useOnlineBattleGame(params: Params) {
             window.clearInterval(pollingTimer);
             pollingTimer = null;
         }
+
+        clearCoinTossTimers();
     });
 
     return {
@@ -380,6 +470,11 @@ export function useOnlineBattleGame(params: Params) {
 
         waitingForOpponent,
         isMyTurn,
+
+        coinTossVisible,
+        coinTossSpinning,
+        coinTossFace,
+        coinTossResultText,
 
         playerDisplayName,
         playerImage,

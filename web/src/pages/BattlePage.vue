@@ -95,6 +95,10 @@ const {
   isPlayableCell,
   reserveText,
   boardPieceAt,
+  coinTossVisible,
+  coinTossSpinning,
+  coinTossFace,
+  coinTossResultText,
 } = useBattleGame({
   player1Name,
   player2Name,
@@ -139,6 +143,27 @@ onBeforeUnmount(() => {
     <div class="page-inner">
       <h1>Gobblet Gobblers</h1>
 
+      <div v-if="coinTossVisible" class="coin-toss-overlay">
+        <div class="coin-toss-card">
+          <p class="coin-toss-label">先手決定</p>
+
+          <div
+            class="coin-toss-coin"
+            :class="[
+              { spinning: coinTossSpinning },
+              coinTossFace === 'heads' ? 'heads' : '',
+              coinTossFace === 'tails' ? 'tails' : '',
+            ]"
+          >
+            <span class="coin-face face-front">表</span>
+            <span class="coin-face face-back">裏</span>
+          </div>
+
+          <p class="coin-toss-text">{{ coinTossResultText }}</p>
+          <p class="coin-toss-sub">表: {{ player1Name }} / 裏: {{ player2Name }}</p>
+        </div>
+      </div>
+
       <BattleHeader
         class="battle-header"
         :player1-name="player1Name"
@@ -157,47 +182,47 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="game-layout">
-  <ReservePanel
-    class="reserve-panel"
-    :title="player1Name"
-    :pieces="reserveP1"
-    :current-player="currentPlayer"
-    :owner="1"
-    :winner="winner"
-    :piece-size-class="pieceSizeClass"
-    :is-selected-reserve-piece="isSelectedReservePiece"
-    :reserve-text="reserveText"
-    :player-image="playerImage"
-    @select="selectReservePiece"
-  />
+        <ReservePanel
+          class="reserve-panel"
+          :title="player2Name"
+          :pieces="reserveP2"
+          :current-player="currentPlayer"
+          :owner="2"
+          :winner="winner"
+          :piece-size-class="pieceSizeClass"
+          :is-selected-reserve-piece="isSelectedReservePiece"
+          :reserve-text="reserveText"
+          :player-image="playerImage"
+          @select="selectReservePiece"
+        />
 
-  <BattleBoard
-    class="battle-board"
-    :board="board"
-    :winner="winner"
-    :board-piece-at="boardPieceAt"
-    :piece-size-class="pieceSizeClass"
-    :is-selected-board-piece="isSelectedBoardPiece"
-    :is-playable-cell="isPlayableCell"
-    :is-winning-cell="isWinningCell"
-    :player-image="playerImage"
-    @cell-click="handleCellClick"
-  />
+        <BattleBoard
+          class="battle-board"
+          :board="board"
+          :winner="winner"
+          :board-piece-at="boardPieceAt"
+          :piece-size-class="pieceSizeClass"
+          :is-selected-board-piece="isSelectedBoardPiece"
+          :is-playable-cell="isPlayableCell"
+          :is-winning-cell="isWinningCell"
+          :player-image="playerImage"
+          @cell-click="handleCellClick"
+        />
 
-  <ReservePanel
-    class="reserve-panel"
-    :title="player2Name"
-    :pieces="reserveP2"
-    :current-player="currentPlayer"
-    :owner="2"
-    :winner="winner"
-    :piece-size-class="pieceSizeClass"
-    :is-selected-reserve-piece="isSelectedReservePiece"
-    :reserve-text="reserveText"
-    :player-image="playerImage"
-    @select="selectReservePiece"
-  />
-</div>
+        <ReservePanel
+          class="reserve-panel"
+          :title="player1Name"
+          :pieces="reserveP1"
+          :current-player="currentPlayer"
+          :owner="1"
+          :winner="winner"
+          :piece-size-class="pieceSizeClass"
+          :is-selected-reserve-piece="isSelectedReservePiece"
+          :reserve-text="reserveText"
+          :player-image="playerImage"
+          @select="selectReservePiece"
+        />
+      </div>
 
       <div class="bottom-layout">
         <BattleControls
@@ -267,63 +292,6 @@ onBeforeUnmount(() => {
   --battle-button-font-size: clamp(12px, 1.4vh, 13px);
   --battle-rules-padding-y: clamp(8px, 1vh, 10px);
   --battle-rules-padding-x: clamp(12px, 1vw, 14px);
-}
-
-/* ここから下は、今の BattlePage.vue の style をそのまま残してください */
-
-:global(#app) {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  border-inline: 0;
-}
-
-.battle-page {
-  --battle-page-top-padding: 0px;
-  --battle-page-side-padding: clamp(16px, 1.6vw, 24px);
-  --battle-page-bottom-padding: clamp(8px, 1.2vh, 10px);
-  --battle-section-gap: clamp(1px, 0.3vh, 3px);
-  --battle-title-size: clamp(17px, 1.8vh, 22px);
-  --battle-header-gap: clamp(20px, 4vw, 56px);
-  /*--battle-header-side-padding: clamp(20px, 8vw, 160px);*/
-  --battle-header-card-width: clamp(168px, 13vw, 196px);
-  --battle-header-card-padding-y: clamp(2px, 0.4vh, 4px);
-  --battle-header-card-padding-x: clamp(10px, 0.9vw, 12px);
-  --battle-header-image-size: clamp(50px, 5.7vh, 60px);
-  --battle-player-name-size: clamp(11px, 1.3vh, 13px);
-  --battle-character-name-size: clamp(9px, 1vh, 10px);
-  --battle-banner-max-width: clamp(280px, 30vw, 340px);
-  --battle-banner-font-size: clamp(15px, 1.85vh, 18px);
-  --battle-banner-padding-y: clamp(3px, 0.45vh, 5px);
-  --battle-banner-padding-x: clamp(12px, 1vw, 15px);
-  --battle-banner-lift: clamp(84px, 10vh, 104px);
-  --battle-side-panel-width: clamp(214px, 15vw, 248px);
-  --battle-layout-gap: clamp(12px, 1.2vw, 20px);
-  --battle-side-panel-padding-top: clamp(10px, 1.3vh, 12px);
-  --battle-side-panel-padding-x: clamp(9px, 0.8vw, 11px);
-  --battle-side-panel-padding-bottom: clamp(12px, 1.5vh, 14px);
-  --battle-side-heading-size: clamp(14px, 1.8vh, 17px);
-  --battle-side-piece-column-min: clamp(84px, 6.5vw, 104px);
-  --battle-reserve-gap: clamp(6px, 0.9vh, 8px);
-  --battle-reserve-height-s: clamp(56px, 7vh, 68px);
-  --battle-reserve-height-m: clamp(68px, 8.8vh, 82px);
-  --battle-reserve-height-l: clamp(82px, 10.6vh, 96px);
-  --battle-reserve-scale-s: 0.58;
-  --battle-reserve-scale-m: 0.68;
-  --battle-reserve-scale-l: 0.8;
-  --battle-board-size: clamp(600px, calc(100svh - 350px), 680px);
-  --battle-board-lift: clamp(130px, 14vh, 160px);
-  --battle-stack-size: clamp(20px, 2.8vh, 24px);
-  --battle-stack-font-size: clamp(11px, 1.6vh, 13px);
-  --battle-bottom-gap: clamp(10px, 1vw, 12px);
- /* --battle-bottom-width: min(100%, 860px);*/
-  --battle-button-gap: clamp(6px, 0.8vh, 8px);
-  --battle-button-min-width: clamp(104px, 9vw, 122px);
-  --battle-button-padding-y: clamp(7px, 0.9vh, 9px);
-  --battle-button-padding-x: clamp(10px, 0.9vw, 14px);
-  --battle-button-font-size: clamp(12px, 1.4vh, 13px);
-  --battle-rules-padding-y: clamp(8px, 1vh, 10px);
-  --battle-rules-padding-x: clamp(12px, 1vw, 14px);
   --battle-rules-title-size: clamp(14px, 1.8vh, 15px);
   --battle-rules-item-size: clamp(11px, 1.35vh, 12px);
   --battle-rules-columns: 1;
@@ -331,6 +299,7 @@ onBeforeUnmount(() => {
   --battle-piece-size-s: clamp(42px, 5.7vh, 56px);
   --battle-piece-size-m: clamp(58px, 7.8vh, 76px);
   --battle-piece-size-l: clamp(72px, 9.9vh, 96px);
+
   min-height: 100vh;
   background:
     linear-gradient(rgba(15, 8, 4, 0.60), rgba(15, 8, 4, 0.72)),
@@ -350,6 +319,7 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-rows: auto auto auto 1fr auto;
   gap: var(--battle-section-gap);
+  position: relative;
 }
 
 h1 {
@@ -364,7 +334,104 @@ h1 {
     0 0 18px rgba(255, 170, 70, 0.22);
 }
 
-/* Header をコンパクト化 */
+.coin-toss-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 6, 3, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.coin-toss-card {
+  width: min(420px, calc(100% - 32px));
+  padding: 24px 20px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 214, 147, 0.38);
+  background:
+    linear-gradient(180deg, rgba(62, 37, 20, 0.96), rgba(30, 18, 10, 0.96));
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 240, 210, 0.18);
+  text-align: center;
+}
+
+.coin-toss-label {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #ffd79b;
+}
+
+.coin-toss-coin {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  margin: 0 auto 16px;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.coin-toss-coin.spinning {
+  animation: coin-spin 0.9s linear infinite;
+}
+
+.coin-toss-coin.heads {
+  transform: rotateY(0deg);
+}
+
+.coin-toss-coin.tails {
+  transform: rotateY(180deg);
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  backface-visibility: hidden;
+  font-size: 28px;
+  font-weight: 900;
+  color: #4a2509;
+  border: 3px solid rgba(255, 238, 196, 0.72);
+  background:
+    radial-gradient(circle at 30% 30%, #fff3bf 0%, #f8d36f 45%, #c9892c 100%);
+  box-shadow:
+    inset 0 3px 10px rgba(255, 255, 255, 0.38),
+    inset 0 -8px 16px rgba(107, 59, 12, 0.24),
+    0 12px 24px rgba(0, 0, 0, 0.28);
+}
+
+.face-back {
+  transform: rotateY(180deg);
+}
+
+.coin-toss-text {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffe9bf;
+}
+
+.coin-toss-sub {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(255, 227, 173, 0.86);
+}
+
+@keyframes coin-spin {
+  from {
+    transform: rotateY(0deg) rotateZ(0deg);
+  }
+  to {
+    transform: rotateY(720deg) rotateZ(360deg);
+  }
+}
+
 .battle-header :deep(.player-info-row) {
   width: 100%;
   gap: var(--battle-header-gap);
@@ -448,7 +515,6 @@ h1 {
   transform-origin: top center;
 }
 
-/* 持ち駒パネルを少し締める */
 .reserve-panel :deep(.side-panel) {
   padding:
     var(--battle-side-panel-padding-top)
@@ -494,19 +560,19 @@ h1 {
   width: 100%;
   margin: 0;
   display: grid;
-  grid-template-columns: 1fr 340px; /* 左にボタン、右にルール */
+  grid-template-columns: 1fr 340px;
   gap: var(--battle-bottom-gap);
   align-items: end;
   position: relative;
   z-index: 2;
 }
+
 .battle-controls {
   display: flex;
   align-items: flex-end;
-   align-self: end;  
-  justify-self: start;   /* ← 左寄せ */
+  align-self: end;
+  justify-self: start;
   min-width: 0;
-  
 }
 
 .battle-controls :deep(.buttons) {
@@ -523,8 +589,6 @@ h1 {
 
 .battle-rules {
   min-width: 0;
-  
-  
 }
 
 .battle-rules :deep(.rules) {
@@ -553,7 +617,6 @@ h1 {
   font-size: var(--battle-rules-item-size);
 }
 
-/* 横幅が狭くなったら素直に縦並び */
 @media (max-width: 1240px) {
   .page-inner {
     min-height: auto;
@@ -703,6 +766,20 @@ h1 {
     width: 100%;
     min-width: 0;
   }
+
+  .coin-toss-card {
+    width: min(360px, calc(100% - 24px));
+    padding: 20px 16px 18px;
+  }
+
+  .coin-toss-coin {
+    width: 96px;
+    height: 96px;
+  }
+
+  .coin-toss-text {
+    font-size: 18px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -726,5 +803,4 @@ h1 {
     height: 100%;
   }
 }
-
 </style>
