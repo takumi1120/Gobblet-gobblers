@@ -117,50 +117,48 @@ onBeforeUnmount(() => {
 
       <p v-if="error" class="error-inline">{{ error }}</p>
 
-      <div class="game-layout">
-        <ReservePanel
-          class="reserve-panel"
-          :title="player2Name"
-          :pieces="reserveP2"
-          :current-player="currentPlayer"
-          :owner="2"
-          :winner="winner"
-          :panel-enabled="localPlayer === 2"
-          :piece-size-class="pieceSizeClass"
-          :is-selected-reserve-piece="isSelectedReservePiece"
-          :reserve-text="reserveText"
-          :player-image="playerImage"
-          @select="selectReservePiece"
-        />
+     <div class="game-layout">
+  <ReservePanel
+    class="reserve-panel"
+    :title="player1Name"
+    :pieces="reserveP1"
+    :current-player="currentPlayer"
+    :owner="1"
+    :winner="winner"
+    :piece-size-class="pieceSizeClass"
+    :is-selected-reserve-piece="isSelectedReservePiece"
+    :reserve-text="reserveText"
+    :player-image="playerImage"
+    @select="selectReservePiece"
+  />
 
-        <BattleBoard
-          class="battle-board"
-          :board="board"
-          :winner="winner"
-          :board-piece-at="boardPieceAt"
-          :piece-size-class="pieceSizeClass"
-          :is-selected-board-piece="isSelectedBoardPiece"
-          :is-playable-cell="isPlayableCell"
-          :is-winning-cell="isWinningCell"
-          :player-image="playerImage"
-          @cell-click="handleCellClick"
-        />
+  <BattleBoard
+    class="battle-board"
+    :board="board"
+    :winner="winner"
+    :board-piece-at="boardPieceAt"
+    :piece-size-class="pieceSizeClass"
+    :is-selected-board-piece="isSelectedBoardPiece"
+    :is-playable-cell="isPlayableCell"
+    :is-winning-cell="isWinningCell"
+    :player-image="playerImage"
+    @cell-click="handleCellClick"
+  />
 
-        <ReservePanel
-          class="reserve-panel"
-          :title="player1Name"
-          :pieces="reserveP1"
-          :current-player="currentPlayer"
-          :owner="1"
-          :winner="winner"
-          :panel-enabled="localPlayer === 1"
-          :piece-size-class="pieceSizeClass"
-          :is-selected-reserve-piece="isSelectedReservePiece"
-          :reserve-text="reserveText"
-          :player-image="playerImage"
-          @select="selectReservePiece"
-        />
-      </div>
+  <ReservePanel
+    class="reserve-panel"
+    :title="player2Name"
+    :pieces="reserveP2"
+    :current-player="currentPlayer"
+    :owner="2"
+    :winner="winner"
+    :piece-size-class="pieceSizeClass"
+    :is-selected-reserve-piece="isSelectedReservePiece"
+    :reserve-text="reserveText"
+    :player-image="playerImage"
+    @select="selectReservePiece"
+  />
+</div>
 
       <div class="bottom-layout">
         <BattleControls

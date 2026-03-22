@@ -253,6 +253,45 @@ async function startBattle() {
     },
   });
 }
+async function startCpuBattle() {
+  if (selectedP1.value === null) {
+    alert("P1ユーザーを選択してください");
+    return;
+  }
+
+  if (selectedP1CharacterId.value === null) {
+    alert("P1キャラクターを選択してください");
+    return;
+  }
+
+  const p1 = items.value.find((user) => user.id === selectedP1.value);
+  const p1Character = characters.value.find(
+    (c) => Number(c.id) === selectedP1CharacterId.value
+  );
+
+  const cpuCharacter =
+    characters.value.find((c) => Number(c.id) === selectedP2CharacterId.value) ??
+    null;
+
+  if (!p1 || !p1Character) {
+    alert("ユーザーまたはキャラクター情報が見つかりません");
+    return;
+  }
+
+  router.push({
+    path: "/battle",
+    query: {
+      mode: "cpu",
+      p1Id: String(p1.id),
+      p1Name: p1.name,
+      p2Name: "CPU",
+      p1CharacterName: p1Character.name,
+      p2CharacterName: cpuCharacter?.name ?? "CPU",
+      p1CharacterImage: p1Character.image ?? "",
+      p2CharacterImage: cpuCharacter?.image ?? "",
+    },
+  });
+}
 </script>
 
 <template>
@@ -304,12 +343,12 @@ async function startBattle() {
         <p>{{ player2Character.name }}</p>
       </div>
     </div>
-
-    <div class="bottom-buttons">
-      <button @click="go('/result')">戦績表示</button>
-      <button @click="startBattle">対戦開始</button>
-      <button @click="go('/user')">ユーザー登録</button>
-    </div>
+<div class="bottom-buttons">
+  <button @click="go('/result')">戦績表示</button>
+  <button @click="startBattle">対戦開始</button>
+  <button @click="startCpuBattle">CPU対戦開始</button>
+  <button @click="go('/user')">ユーザー登録</button>
+</div>
 
     <button class="back-mode-button" @click="go('/')">
       モード選択に戻る
